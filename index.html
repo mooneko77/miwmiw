@@ -25,7 +25,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div class="flex items-center space-x-2">
                         <label class="text-sm font-medium text-[#567357]/80">目前設定匯率：1 韓元 = </label>
-                        <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-24 p-1.5 border-2 border-[#567357]/20 rounded-lg text-center font-bold text-[#567357] focus:outline-none focus:border-[#E58889] transition-colors" onchange="updateRate()">
+                        <input type="number" id="exchangeRate" value="0.02" step="0.001" class="w-24 p-1.5 border-2 border-[#567357]/20 rounded-lg text-center font-bold text-[#567357] focus:outline-none focus:border-[#E58889] transition-colors" onchange="updateRate()">
                         <span class="text-sm text-[#567357]/80">台幣</span>
                     </div>
                     <span class="text-xs text-[#E58889] font-medium sm:ml-2">※ 此為估算工具，實際回饋依官方公告為準</span>
@@ -64,7 +64,7 @@
                     <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
                         <div id="icashBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="icashEarned">已賺: 0 / 上限 300 點</p>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="icashEarned">賺 0 / 上限 300 點</p>
                 </div>
             </div>
 
@@ -81,7 +81,7 @@
                     <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
                         <div id="easyBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="easyEarned">已賺: 0 / 上限 600 元</p>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="easyEarned">賺 0 / 上限 600 元</p>
                 </div>
             </div>
 
@@ -102,7 +102,7 @@
                     <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
                         <div id="pxpayBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="pxpayEarned">基本: 0/1000點 | 將來: 0/100點</p>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="pxpayEarned">基本 0 /上限 1000 點 | 將來 0 /上限 100 點</p>
                 </div>
             </div>
 
@@ -111,7 +111,7 @@
                 <div class="flex justify-between items-start mb-2">
                     <!-- 新的需求3：1% + 4%加碼 - 1.5%手續費 = 3.5% -->
                     <span class="px-2 py-1 bg-[#E58889] text-white text-[10px] sm:text-[11px] font-bold rounded-lg tracking-wide">1% + 4%加碼 - 1.5%手續費 = 3.5%</span>
-                    <span class="text-xs font-bold text-[#567357]/80 text-right mt-1">加碼可刷 TWD 15,000</span>
+                    <span class="text-xs font-bold text-[#567357]/80 text-right mt-1">可刷 TWD 15,000</span>
                 </div>
                 <!-- 新的需求4：詳細列出1%無上限+4%最高600 -->
                 <h3 class="font-bold text-lg text-[#567357]">富邦好市多卡</h3>
@@ -122,7 +122,7 @@
                     <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
                         <div id="fubonBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
                     </div>
-                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="fubonEarned">1%賺: 0 | 4%賺: 0 / 上限 600</p>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="fubonEarned">1% 0 | 4% 0 / 上限 600 元</p>
                 </div>
             </div>
 
