@@ -26,7 +26,7 @@
                 <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500 mb-2">🇰🇷 韓國旅遊消費回饋計算器</h1>
                 <div class="flex items-center space-x-2">
                     <label class="text-sm font-medium text-gray-700">目前設定匯率：1 韓元 = </label>
-                    <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-24 p-1.5 border-2 border-purple-200 rounded-lg text-center font-bold text-purple-600 focus:outline-none focus:border-purple-400" onchange="calculateAll()">
+                    <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-24 p-1.5 border-2 border-purple-200 rounded-lg text-center font-bold text-purple-600 focus:outline-none focus:border-purple-400" onchange="updateRate()">
                     <span class="text-sm text-gray-700">台幣</span>
                 </div>
             </div>
@@ -36,12 +36,12 @@
                 <div class="text-sm font-bold text-purple-800 mb-2 flex items-center gap-1">
                     <span>🔄 台新信用卡今日方案設定</span>
                 </div>
-                <div class="flex bg-white p-1 rounded-xl shadow-inner">
+                <div class="flex bg-white p-1 rounded-xl shadow-inner gap-1">
                     <button id="btn-taishinpay" onclick="switchTaishin('taishinpay')" class="flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-rose-500 text-white">
-                        1: pay著刷
+                        pay著刷
                     </button>
                     <button id="btn-taishin" onclick="switchTaishin('taishin')" class="flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-500 hover:text-gray-700">
-                        2: 玩旅刷
+                        玩旅刷
                     </button>
                 </div>
                 <p class="text-[10px] text-gray-500 mt-2 text-center">※ 每日限更改一次，擇一計算回饋</p>
@@ -106,16 +106,14 @@
                 <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="fubonEarned">淨賺: 0 元</p>
             </div>
 
-            <!-- 5. 今日方案2: 玩旅刷 (原台新銀行) -->
+            <!-- 5. 玩旅刷 (原台新銀行) -->
             <div id="card-taishin" class="plan-card bg-white/95 p-5 rounded-3xl shadow-md border-2 border-red-200 hover:shadow-lg relative overflow-hidden">
                 <div id="badge-taishin" class="absolute top-0 right-0 bg-gray-400 text-white text-xs font-bold px-3 py-1 rounded-bl-xl hidden">啟用中</div>
                 <div class="flex justify-between items-start mb-2 mt-1">
                     <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-lg tracking-wide">3.3% - 1.5% = 1.8%</span>
                     <span class="text-xs text-gray-500 font-medium">回饋無上限</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
-                    玩旅刷 <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">今日方案2</span>
-                </h3>
+                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">玩旅刷</h3>
                 <p class="text-2xl font-black text-red-500 my-2" id="taishinRemaining">無上限</p>
                 <div class="w-full bg-gray-100 rounded-full h-2.5">
                     <div id="taishinBar" class="bg-gradient-to-r from-red-400 to-red-500 h-2.5 rounded-full" style="width: 100%"></div>
@@ -123,16 +121,14 @@
                 <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="taishinEarned">淨賺: 0 元</p>
             </div>
 
-            <!-- 6. 今日方案1: pay著刷 (原台新Pay+) -->
+            <!-- 6. pay著刷 (原台新Pay+) -->
             <div id="card-taishinpay" class="plan-card bg-white/95 p-5 rounded-3xl shadow-md border-2 border-rose-200 hover:shadow-lg relative overflow-hidden">
                 <div id="badge-taishinpay" class="absolute top-0 right-0 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">啟用中</div>
                 <div class="flex justify-between items-start mb-2 mt-1">
                     <span class="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-lg">3.8% 免手續費</span>
                     <span class="text-xs text-gray-500 font-medium">回饋無上限</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
-                    pay著刷 <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">今日方案1</span>
-                </h3>
+                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">pay著刷</h3>
                 <p class="text-2xl font-black text-rose-500 my-2" id="taishinpayRemaining">無上限</p>
                 <div class="w-full bg-gray-100 rounded-full h-2.5">
                     <div id="taishinpayBar" class="bg-gradient-to-r from-rose-400 to-rose-500 h-2.5 rounded-full" style="width: 100%"></div>
@@ -164,9 +160,8 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">支付方式</label>
                     <select id="expMethod" class="w-full p-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-300 transition font-medium text-gray-700">
-                        <!-- 選項會透過 JS 動態隱藏/顯示台新方案 -->
-                        <option value="taishinpay" id="opt-taishinpay">🔥今日方案1: pay著刷 (3.8%)</option>
-                        <option value="taishin" id="opt-taishin" hidden>🔥今日方案2: 玩旅刷 (1.8%)</option>
+                        <option value="taishinpay" id="opt-taishinpay">🔥pay著刷 (3.8%)</option>
+                        <option value="taishin" id="opt-taishin" hidden>🔥玩旅刷 (1.8%)</option>
                         <option value="icash">icash Pay (15%)</option>
                         <option value="easy">悠遊付 (10.5%)</option>
                         <option value="pxpay">全支付 (15%)</option>
@@ -207,18 +202,36 @@
     </div>
 
     <script>
-        // 初始化預設資料
-        let expenses = [
-            { id: 1, name: '吃飯', amount: 20000, currency: 'KRW', method: 'icash' },
-            { id: 2, name: '購物', amount: 35000, currency: 'KRW', method: 'pxpay' }
-        ];
+        // 1. 嘗試從 LocalStorage 讀取資料，如果沒有則給一個空陣列
+        let expenses = JSON.parse(localStorage.getItem('korea_expenses'));
+        if (!expenses) {
+            expenses = []; 
+        }
 
-        // 預設啟用的台新方案 (taishinpay: pay著刷 / taishin: 玩旅刷)
-        let activeTaishinPlan = 'taishinpay';
+        // 讀取儲存的匯率
+        const savedRate = localStorage.getItem('korea_exchange_rate');
+        if (savedRate) {
+            document.getElementById('exchangeRate').value = savedRate;
+        }
+
+        // 讀取儲存的方案
+        let activeTaishinPlan = localStorage.getItem('korea_active_plan') || 'taishinpay';
+
+        // 存檔機制
+        function saveData() {
+            localStorage.setItem('korea_expenses', JSON.stringify(expenses));
+        }
+
+        function updateRate() {
+            const rate = document.getElementById('exchangeRate').value;
+            localStorage.setItem('korea_exchange_rate', rate);
+            calculateAll();
+        }
 
         // 切換台新方案的功能
         function switchTaishin(plan) {
             activeTaishinPlan = plan;
+            localStorage.setItem('korea_active_plan', plan); // 記住使用者選的方案
             
             const btnPay = document.getElementById('btn-taishinpay');
             const btnTaishin = document.getElementById('btn-taishin');
@@ -228,18 +241,16 @@
             const badgeTaishin = document.getElementById('badge-taishin');
             
             if (plan === 'taishinpay') {
-                // 按鈕樣式
                 btnPay.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-rose-500 text-white";
                 btnTaishin.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-500 hover:text-gray-700";
-                // 卡片樣式 (未啟用者變灰階半透明)
+                
                 cardPay.classList.remove('opacity-50', 'grayscale', 'border-gray-200');
                 cardTaishin.classList.add('opacity-50', 'grayscale', 'border-gray-200');
-                // 標籤顯示
+                
                 badgePay.classList.remove('hidden');
                 badgeTaishin.classList.add('hidden');
                 badgePay.className = "absolute top-0 right-0 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl";
                 
-                // 處理下拉選單隱藏邏輯
                 document.getElementById('opt-taishinpay').hidden = false;
                 document.getElementById('opt-taishin').hidden = true;
                 if(document.getElementById('expMethod').value === 'taishin') {
@@ -247,18 +258,16 @@
                 }
 
             } else {
-                // 按鈕樣式
                 btnTaishin.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-red-500 text-white";
                 btnPay.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-500 hover:text-gray-700";
-                // 卡片樣式
+                
                 cardTaishin.classList.remove('opacity-50', 'grayscale', 'border-gray-200');
                 cardPay.classList.add('opacity-50', 'grayscale', 'border-gray-200');
-                // 標籤顯示
+                
                 badgeTaishin.classList.remove('hidden');
                 badgePay.classList.add('hidden');
                 badgeTaishin.className = "absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl";
                 
-                // 處理下拉選單隱藏邏輯
                 document.getElementById('opt-taishin').hidden = false;
                 document.getElementById('opt-taishinpay').hidden = true;
                 if(document.getElementById('expMethod').value === 'taishinpay') {
@@ -275,9 +284,10 @@
             const method = document.getElementById('expMethod').value;
 
             expenses.push({ id: Date.now(), name, amount, currency, method });
+            saveData(); // 存檔
+            
             document.getElementById('expenseForm').reset();
             
-            // 保持下拉選單在當前啟用的台新方案 (若原本選的是台新)
             if(method.includes('taishin')) {
                 document.getElementById('expMethod').value = activeTaishinPlan;
             }
@@ -287,12 +297,14 @@
 
         function deleteExpense(id) {
             expenses = expenses.filter(exp => exp.id !== id);
+            saveData(); // 存檔
             calculateAll();
         }
 
         function clearAll() {
             if(confirm('確定要清空所有紀錄嗎？')) {
                 expenses = [];
+                saveData(); // 存檔
                 calculateAll();
             }
         }
@@ -300,7 +312,6 @@
         function calculateAll() {
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
             
-            // 各方案上限定義 (台新兩個方案為無上限)
             const caps = { icash: 2000, easy: 5714, pxpay: 10000, taishinpay: Infinity, fubon: 15000, taishin: Infinity };
             const spending = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
             const rewards = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
@@ -309,11 +320,9 @@
             listBody.innerHTML = '';
 
             expenses.forEach(exp => {
-                // 換算台幣
                 const twdAmount = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
                 spending[exp.method] += twdAmount;
 
-                // 計算單筆回饋
                 let rewardText = '';
                 if (exp.method === 'icash') {
                     const validAmount = Math.max(0, twdAmount - Math.max(0, spending.icash - caps.icash));
@@ -331,12 +340,10 @@
                     rewards.pxpay += reward;
                     rewardText = `+${reward} 全點`;
                 } else if (exp.method === 'taishinpay') {
-                    // 今日方案1: pay著刷 (無上限, 3.8%免手續費)
                     const reward = Math.round(twdAmount * 0.038);
                     rewards.taishinpay += reward;
                     rewardText = `+${reward} 台新Point`;
                 } else if (exp.method === 'fubon') {
-                    // 富邦: 1%基本 + 4%加碼(有上限) - 1.5%手續費
                     const validAmount = Math.max(0, twdAmount - Math.max(0, spending.fubon - caps.fubon));
                     const base = Math.round(twdAmount * 0.01);
                     const bonus = Math.round(validAmount * 0.04);
@@ -345,7 +352,6 @@
                     rewards.fubon += net;
                     rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
                 } else if (exp.method === 'taishin') {
-                    // 今日方案2: 玩旅刷 (無上限, 3.3% - 1.5% = 1.8%)
                     const base = Math.round(twdAmount * 0.033);
                     const fee = Math.round(twdAmount * 0.015);
                     const net = base - fee;
@@ -353,17 +359,15 @@
                     rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
                 }
 
-                // 渲染標籤顏色與文字
                 let badgeClass = '';
                 let methodText = '';
                 if(exp.method === 'icash') { badgeClass = 'bg-purple-100 text-purple-700'; methodText = 'icash Pay'; }
                 else if(exp.method === 'easy') { badgeClass = 'bg-cyan-100 text-cyan-700'; methodText = '悠遊付'; }
                 else if(exp.method === 'pxpay') { badgeClass = 'bg-pink-100 text-pink-700'; methodText = '全支付'; }
                 else if(exp.method === 'fubon') { badgeClass = 'bg-amber-100 text-amber-700'; methodText = '富邦好市多'; }
-                else if(exp.method === 'taishin') { badgeClass = 'bg-red-500 text-white shadow-sm'; methodText = '今日方案2: 玩旅刷'; }
-                else if(exp.method === 'taishinpay') { badgeClass = 'bg-rose-500 text-white shadow-sm'; methodText = '今日方案1: pay著刷'; }
+                else if(exp.method === 'taishin') { badgeClass = 'bg-red-500 text-white shadow-sm'; methodText = '玩旅刷'; }
+                else if(exp.method === 'taishinpay') { badgeClass = 'bg-rose-500 text-white shadow-sm'; methodText = 'pay著刷'; }
 
-                // 渲染明細表格
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-purple-50/50 transition text-sm';
                 tr.innerHTML = `
@@ -377,45 +381,38 @@
                 listBody.appendChild(tr);
             });
 
-            // 更新上方的餘額顯示與進度條
-            // 1. icash
             const icashLeft = Math.max(0, caps.icash - spending.icash);
             document.getElementById('icashRemaining').innerText = `TWD ${icashLeft.toLocaleString()}`;
             document.getElementById('icashBar').style.width = `${(icashLeft / caps.icash) * 100}%`;
             document.getElementById('icashEarned').innerText = `已賺: ${rewards.icash} 點`;
 
-            // 2. 悠遊付
             const easyLeft = Math.max(0, caps.easy - spending.easy);
             document.getElementById('easyRemaining').innerText = `TWD ${easyLeft.toLocaleString()}`;
             document.getElementById('easyBar').style.width = `${(easyLeft / caps.easy) * 100}%`;
             document.getElementById('easyEarned').innerText = `已賺: ${rewards.easy} 元`;
 
-            // 3. 全支付
             const pxpayLeft = Math.max(0, caps.pxpay - spending.pxpay);
             document.getElementById('pxpayRemaining').innerText = `TWD ${pxpayLeft.toLocaleString()}`;
             document.getElementById('pxpayBar').style.width = `${(pxpayLeft / caps.pxpay) * 100}%`;
             document.getElementById('pxpayEarned').innerText = `已賺: ${rewards.pxpay} 點`;
 
-            // 4. 富邦好市多
             const fubonLeft = Math.max(0, caps.fubon - spending.fubon);
             document.getElementById('fubonRemaining').innerText = `TWD ${fubonLeft.toLocaleString()}`;
             document.getElementById('fubonBar').style.width = `${(fubonLeft / caps.fubon) * 100}%`;
             document.getElementById('fubonEarned').innerText = `累積淨賺: ${rewards.fubon} 元`;
 
-            // 5. 今日方案2: 玩旅刷 (無上限)
             document.getElementById('taishinRemaining').innerText = `無上限`;
             document.getElementById('taishinBar').style.width = `100%`;
             document.getElementById('taishinEarned').innerText = `累積淨賺: ${rewards.taishin} 元`;
 
-            // 6. 今日方案1: pay著刷 (無上限)
             document.getElementById('taishinpayRemaining').innerText = `無上限`;
             document.getElementById('taishinpayBar').style.width = `100%`;
             document.getElementById('taishinpayEarned').innerText = `累積淨賺: ${rewards.taishinpay} 點`;
 
         }
 
-        // 網頁開啟時第一次計算，並初始化切換器狀態
-        switchTaishin('taishinpay'); 
+        // 網頁開啟時第一次計算，並初始化切換器狀態 (從 localStorage 讀取最後一次選的方案)
+        switchTaishin(activeTaishinPlan); 
         calculateAll();
     </script>
 </body>
