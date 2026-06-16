@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>韓國消費回饋計算器</title>
+    <title>韓國旅遊消費回饋計算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 卡片切換過渡效果 */
@@ -132,7 +132,55 @@
             </div>
         </div>
 
-        <!-- 新增消費紀錄 -->
+        <!-- 💡 聰明付款推薦小幫手 -->
+        <div class="bg-[#567357] p-6 rounded-3xl shadow-md text-white">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                💡 聰明付款推薦小幫手
+            </h2>
+            <p class="text-sm text-white/80 mb-4">告訴我你要買什麼、多少錢，我幫你找出目前最划算的刷卡方式！(會自動避開已經刷滿的方案)</p>
+            <form onsubmit="recommendPayment(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-white/90 mb-1">在哪買？買什麼？(選填)</label>
+                    <input type="text" id="recItem" placeholder="例如：Olive Young" class="w-full p-2.5 border-0 rounded-xl text-[#567357] focus:ring-2 focus:ring-[#E58889] focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white/90 mb-1">花費金額</label>
+                    <div class="flex">
+                        <select id="recCurrency" class="p-2.5 border-0 border-r rounded-l-xl bg-[#F9F0ED] text-[#567357] focus:outline-none font-medium">
+                            <option value="KRW">KRW 韓元</option>
+                            <option value="TWD">TWD 台幣</option>
+                        </select>
+                        <input type="number" id="recAmount" placeholder="金額" required class="w-full p-2.5 border-0 rounded-r-xl text-[#567357] focus:ring-2 focus:ring-[#E58889] focus:outline-none">
+                    </div>
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="w-full bg-[#E58889] text-white font-bold p-2.5 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all">幫我算！</button>
+                </div>
+            </form>
+
+            <!-- 推薦結果顯示區 -->
+            <div id="recResultArea" class="mt-4 hidden bg-white text-[#567357] p-4 rounded-2xl shadow-inner">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-bold text-[#E58889]" id="recAskText"></span>
+                    <button onclick="applyRecommendation()" class="text-xs bg-[#567357] text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition">✓ 直接記一筆</button>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="flex-1 w-full p-3 bg-[#F9F0ED] rounded-xl border border-[#E58889]/30 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-[#E58889] text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">冠軍 🏆</div>
+                        <p class="text-xs text-[#567357]/80 font-semibold mb-1">最推薦使用</p>
+                        <p class="text-xl font-extrabold text-[#567357]" id="recBestName">---</p>
+                        <p class="text-sm font-bold text-[#E58889] mt-1" id="recBestReward">預估淨賺: 0 元</p>
+                    </div>
+                    <div class="flex-1 w-full p-3 bg-gray-50 rounded-xl border border-gray-200 opacity-80">
+                        <p class="text-xs text-gray-500 font-semibold mb-1">次佳方案 🥈</p>
+                        <p class="text-lg font-bold text-gray-700" id="recSecondName">---</p>
+                        <p class="text-sm font-bold text-gray-500 mt-1" id="recSecondReward">預估淨賺: 0 元</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增消費紀錄表單 -->
         <div id="expenseFormContainer" class="bg-white p-6 rounded-3xl shadow-sm border border-[#E58889]/20">
             <h2 id="formTitle" class="text-xl font-bold text-[#567357] mb-4 flex items-center gap-2">
                 新增消費紀錄
@@ -200,19 +248,14 @@
     </div>
 
     <script>
-        // 1. 嘗試從 LocalStorage 讀取資料
-        let expenses = JSON.parse(localStorage.getItem('korea_expenses'));
-        if (!expenses) {
-            expenses = []; 
-        }
-
+        let expenses = JSON.parse(localStorage.getItem('korea_expenses')) || [];
         const savedRate = localStorage.getItem('korea_exchange_rate');
-        if (savedRate) {
-            document.getElementById('exchangeRate').value = savedRate;
-        }
-
+        if (savedRate) document.getElementById('exchangeRate').value = savedRate;
         let activeTaishinPlan = localStorage.getItem('korea_active_plan') || 'taishinpay';
-        let editingId = null; // 紀錄目前正在編輯的 ID
+        let editingId = null; 
+        
+        // 紀錄小幫手目前推薦的最佳付款方式，供一鍵帶入使用
+        let currentRecMethod = '';
 
         function saveData() {
             localStorage.setItem('korea_expenses', JSON.stringify(expenses));
@@ -238,10 +281,8 @@
             if (plan === 'taishinpay') {
                 btnPay.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-[#567357] text-white";
                 btnTaishin.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-400 hover:text-[#567357]";
-                
                 cardPay.classList.remove('opacity-50', 'grayscale', 'border-gray-200');
                 cardTaishin.classList.add('opacity-50', 'grayscale', 'border-gray-200');
-                
                 badgePay.classList.remove('hidden');
                 badgeTaishin.classList.add('hidden');
                 badgePay.className = "absolute top-0 right-0 bg-[#E58889] text-white text-xs font-bold px-3 py-1 rounded-bl-xl";
@@ -251,14 +292,11 @@
                 if(document.getElementById('expMethod').value === 'taishin' && editingId === null) {
                     document.getElementById('expMethod').value = 'taishinpay';
                 }
-
             } else {
                 btnTaishin.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-[#567357] text-white";
                 btnPay.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-400 hover:text-[#567357]";
-                
                 cardTaishin.classList.remove('opacity-50', 'grayscale', 'border-gray-200');
                 cardPay.classList.add('opacity-50', 'grayscale', 'border-gray-200');
-                
                 badgeTaishin.classList.remove('hidden');
                 badgePay.classList.add('hidden');
                 badgeTaishin.className = "absolute top-0 right-0 bg-[#E58889] text-white text-xs font-bold px-3 py-1 rounded-bl-xl";
@@ -271,74 +309,137 @@
             }
         }
 
-        // 編輯單筆明細
+        // ================= 聰明付款推薦小幫手邏輯 =================
+        function recommendPayment(e) {
+            e.preventDefault();
+            const itemName = document.getElementById('recItem').value || '這個東西';
+            const amount = parseFloat(document.getElementById('recAmount').value);
+            const currency = document.getElementById('recCurrency').value;
+            const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
+
+            const twdAmount = currency === 'KRW' ? Math.round(amount * rate) : amount;
+
+            // 1. 先計算目前各大支付的已用額度
+            const caps = { icash: 2000, easy: 5714, pxpay: 10000, fubon: 15000 };
+            const spending = { icash: 0, easy: 0, pxpay: 0, fubon: 0 };
+            
+            expenses.forEach(exp => {
+                const tAmt = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
+                if (spending[exp.method] !== undefined) {
+                    spending[exp.method] += tAmt;
+                }
+            });
+
+            let results = [];
+
+            // 2. 分別試算如果這筆錢刷下去，會拿到多少回饋
+            // icash
+            const leftIcash = Math.max(0, caps.icash - spending.icash);
+            const rewardIcash = Math.round(Math.min(twdAmount, leftIcash) * 0.15);
+            results.push({ method: 'icash', name: 'icash Pay', reward: rewardIcash });
+
+            // 悠遊付
+            const leftEasy = Math.max(0, caps.easy - spending.easy);
+            const rewardEasy = Math.round(Math.min(twdAmount, leftEasy) * 0.105);
+            results.push({ method: 'easy', name: '悠遊付', reward: rewardEasy });
+
+            // 全支付
+            const leftPxpay = Math.max(0, caps.pxpay - spending.pxpay);
+            const rewardPxpay = Math.round(Math.min(twdAmount, leftPxpay) * 0.15);
+            results.push({ method: 'pxpay', name: '全支付', reward: rewardPxpay });
+
+            // 富邦
+            const leftFubon = Math.max(0, caps.fubon - spending.fubon);
+            const baseFubon = Math.round(twdAmount * 0.01);
+            const bonusFubon = Math.round(Math.min(twdAmount, leftFubon) * 0.04);
+            const feeFubon = Math.round(twdAmount * 0.015);
+            results.push({ method: 'fubon', name: '富邦好市多卡', reward: baseFubon + bonusFubon - feeFubon });
+
+            // 台新 (依目前選擇的方案)
+            if (activeTaishinPlan === 'taishinpay') {
+                results.push({ method: 'taishinpay', name: 'pay著刷', reward: Math.round(twdAmount * 0.038) });
+            } else {
+                results.push({ method: 'taishin', name: '玩旅刷', reward: Math.round(twdAmount * 0.033) - Math.round(twdAmount * 0.015) });
+            }
+
+            // 3. 排序選出冠亞軍
+            results.sort((a, b) => b.reward - a.reward);
+            const best = results[0];
+            const second = results[1];
+
+            // 4. 更新 UI
+            document.getElementById('recAskText').innerText = `購買 ${itemName} (${amount.toLocaleString()} ${currency})`;
+            document.getElementById('recBestName').innerText = best.name;
+            document.getElementById('recBestReward').innerText = `+${best.reward} (淨賺)`;
+            
+            document.getElementById('recSecondName').innerText = second.name;
+            document.getElementById('recSecondReward').innerText = `+${second.reward} (淨賺)`;
+            
+            currentRecMethod = best.method; // 記住要幫使用者自動選哪個
+            document.getElementById('recResultArea').classList.remove('hidden');
+        }
+
+        // 小幫手「一鍵帶入記帳」
+        function applyRecommendation() {
+            // 把小幫手輸入的值塞到下方表單
+            document.getElementById('expName').value = document.getElementById('recItem').value || '未命名消費';
+            document.getElementById('expAmount').value = document.getElementById('recAmount').value;
+            document.getElementById('expCurrency').value = document.getElementById('recCurrency').value;
+            document.getElementById('expMethod').value = currentRecMethod;
+            
+            // 捲動至表單區，並讓名稱欄位閃爍提示
+            document.getElementById('expenseFormContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // 清除小幫手的內容並隱藏結果
+            document.getElementById('recItem').value = '';
+            document.getElementById('recAmount').value = '';
+            document.getElementById('recResultArea').classList.add('hidden');
+        }
+        // =========================================================
+
         function editExpense(id) {
             const exp = expenses.find(e => e.id === id);
             if (!exp) return;
-
             document.getElementById('expName').value = exp.name;
             document.getElementById('expAmount').value = exp.amount;
             document.getElementById('expCurrency').value = exp.currency;
-
-            // 如果編輯的是台新卡，自動將方案切換到該紀錄對應的方案，避免選單出錯
-            if (exp.method === 'taishinpay' || exp.method === 'taishin') {
-                switchTaishin(exp.method);
-            }
+            if (exp.method === 'taishinpay' || exp.method === 'taishin') switchTaishin(exp.method);
             document.getElementById('expMethod').value = exp.method;
-
             editingId = id;
-
-            // 變更表單 UI 為編輯模式
             document.getElementById('formTitle').innerHTML = '✏️ 編輯消費紀錄';
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.innerText = '儲存修改';
             submitBtn.className = "flex-1 bg-[#E58889] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
-
-            // 自動滑動到表單區塊
             document.getElementById('expenseFormContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        // 取消編輯
         function cancelEdit() {
             editingId = null;
             document.getElementById('expenseForm').reset();
-            
-            // 恢復表單 UI
             document.getElementById('formTitle').innerHTML = '新增消費紀錄';
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.innerText = '記一筆';
             submitBtn.className = "flex-1 bg-[#567357] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all";
             document.getElementById('cancelEditBtn').classList.add('hidden');
-
-            // 恢復下拉選單的台新選項為目前啟用的方案
             document.getElementById('expMethod').value = activeTaishinPlan;
         }
 
-        // 處理新增或修改
         function addExpense(e) {
             e.preventDefault();
             const name = document.getElementById('expName').value;
             const amount = parseFloat(document.getElementById('expAmount').value);
             const currency = document.getElementById('expCurrency').value;
             const method = document.getElementById('expMethod').value;
-
             if (editingId) {
-                // 修改現有資料
                 const index = expenses.findIndex(exp => exp.id === editingId);
-                if (index !== -1) {
-                    expenses[index] = { ...expenses[index], name, amount, currency, method };
-                }
-                cancelEdit(); // 修改完直接呼叫取消編輯來還原UI
+                if (index !== -1) expenses[index] = { ...expenses[index], name, amount, currency, method };
+                cancelEdit(); 
             } else {
-                // 新增資料
                 expenses.push({ id: Date.now(), name, amount, currency, method });
                 document.getElementById('expenseForm').reset();
-                if(method.includes('taishin')) {
-                    document.getElementById('expMethod').value = activeTaishinPlan;
-                }
+                if(method.includes('taishin')) document.getElementById('expMethod').value = activeTaishinPlan;
             }
-            
             saveData();
             calculateAll();
         }
@@ -346,7 +447,6 @@
         function deleteExpense(id) {
             if(confirm('確定要刪除這筆紀錄嗎？')) {
                 expenses = expenses.filter(exp => exp.id !== id);
-                // 如果刪除的剛好是正在編輯的項目，就取消編輯狀態
                 if (editingId === id) cancelEdit();
                 saveData();
                 calculateAll();
@@ -364,11 +464,9 @@
 
         function calculateAll() {
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
-            
             const caps = { icash: 2000, easy: 5714, pxpay: 10000, taishinpay: Infinity, fubon: 15000, taishin: Infinity };
             const spending = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
             const rewards = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
-
             const listBody = document.getElementById('expenseList');
             listBody.innerHTML = '';
 
@@ -421,7 +519,6 @@
                 else if(exp.method === 'taishin') { methodText = '玩旅刷'; }
 
                 const badgeClass = 'bg-[#E58889] text-white';
-
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-[#F9F0ED]/50 transition text-sm';
                 tr.innerHTML = `
@@ -467,7 +564,6 @@
             document.getElementById('taishinEarned').innerText = `累積淨賺: ${rewards.taishin} 元`;
         }
 
-        // 網頁開啟時第一次計算
         switchTaishin(activeTaishinPlan); 
         calculateAll();
     </script>
