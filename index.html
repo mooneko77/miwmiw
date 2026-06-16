@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>韓國旅遊消費回饋計算器</title>
+    <title>韓國消費回饋計算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* 卡片切換過渡效果 */
@@ -133,8 +133,8 @@
         </div>
 
         <!-- 新增消費紀錄 -->
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-[#E58889]/20">
-            <h2 class="text-xl font-bold text-[#567357] mb-4 flex items-center gap-2">
+        <div id="expenseFormContainer" class="bg-white p-6 rounded-3xl shadow-sm border border-[#E58889]/20">
+            <h2 id="formTitle" class="text-xl font-bold text-[#567357] mb-4 flex items-center gap-2">
                 新增消費紀錄
             </h2>
             <form id="expenseForm" onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -163,7 +163,10 @@
                         <option value="taishin" id="opt-taishin" hidden>玩旅刷 (1.8%)</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-[#567357] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all">記一筆</button>
+                <div class="flex gap-2">
+                    <button type="submit" id="submitBtn" class="flex-1 bg-[#567357] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all">記一筆</button>
+                    <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden flex-1 bg-gray-200 text-gray-600 font-bold p-3 rounded-xl hover:bg-gray-300 shadow-sm transition-all">取消</button>
+                </div>
             </form>
         </div>
 
@@ -179,12 +182,12 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-[#F9F0ED] text-[#567357] text-sm font-bold border-b border-[#E58889]/20">
-                            <th class="p-4">項目</th>
-                            <th class="p-4">原始金額</th>
-                            <th class="p-4">折合台幣</th>
-                            <th class="p-4">支付管道</th>
-                            <th class="p-4">估計淨回饋</th>
-                            <th class="p-4 text-center">操作</th>
+                            <th class="p-4 min-w-[100px]">項目</th>
+                            <th class="p-4 min-w-[120px]">原始金額</th>
+                            <th class="p-4 min-w-[120px]">折合台幣</th>
+                            <th class="p-4 min-w-[120px]">支付管道</th>
+                            <th class="p-4 min-w-[120px]">估計淨回饋</th>
+                            <th class="p-4 text-center min-w-[120px]">操作</th>
                         </tr>
                     </thead>
                     <tbody id="expenseList" class="divide-y divide-[#E58889]/10 text-[#567357]">
@@ -209,6 +212,7 @@
         }
 
         let activeTaishinPlan = localStorage.getItem('korea_active_plan') || 'taishinpay';
+        let editingId = null; // 紀錄目前正在編輯的 ID
 
         function saveData() {
             localStorage.setItem('korea_expenses', JSON.stringify(expenses));
@@ -244,7 +248,7 @@
                 
                 document.getElementById('opt-taishinpay').hidden = false;
                 document.getElementById('opt-taishin').hidden = true;
-                if(document.getElementById('expMethod').value === 'taishin') {
+                if(document.getElementById('expMethod').value === 'taishin' && editingId === null) {
                     document.getElementById('expMethod').value = 'taishinpay';
                 }
 
@@ -261,12 +265,57 @@
                 
                 document.getElementById('opt-taishin').hidden = false;
                 document.getElementById('opt-taishinpay').hidden = true;
-                if(document.getElementById('expMethod').value === 'taishinpay') {
+                if(document.getElementById('expMethod').value === 'taishinpay' && editingId === null) {
                     document.getElementById('expMethod').value = 'taishin';
                 }
             }
         }
 
+        // 編輯單筆明細
+        function editExpense(id) {
+            const exp = expenses.find(e => e.id === id);
+            if (!exp) return;
+
+            document.getElementById('expName').value = exp.name;
+            document.getElementById('expAmount').value = exp.amount;
+            document.getElementById('expCurrency').value = exp.currency;
+
+            // 如果編輯的是台新卡，自動將方案切換到該紀錄對應的方案，避免選單出錯
+            if (exp.method === 'taishinpay' || exp.method === 'taishin') {
+                switchTaishin(exp.method);
+            }
+            document.getElementById('expMethod').value = exp.method;
+
+            editingId = id;
+
+            // 變更表單 UI 為編輯模式
+            document.getElementById('formTitle').innerHTML = '✏️ 編輯消費紀錄';
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = '儲存修改';
+            submitBtn.className = "flex-1 bg-[#E58889] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all";
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+            // 自動滑動到表單區塊
+            document.getElementById('expenseFormContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // 取消編輯
+        function cancelEdit() {
+            editingId = null;
+            document.getElementById('expenseForm').reset();
+            
+            // 恢復表單 UI
+            document.getElementById('formTitle').innerHTML = '新增消費紀錄';
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = '記一筆';
+            submitBtn.className = "flex-1 bg-[#567357] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all";
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+
+            // 恢復下拉選單的台新選項為目前啟用的方案
+            document.getElementById('expMethod').value = activeTaishinPlan;
+        }
+
+        // 處理新增或修改
         function addExpense(e) {
             e.preventDefault();
             const name = document.getElementById('expName').value;
@@ -274,29 +323,40 @@
             const currency = document.getElementById('expCurrency').value;
             const method = document.getElementById('expMethod').value;
 
-            expenses.push({ id: Date.now(), name, amount, currency, method });
-            saveData();
-            
-            document.getElementById('expenseForm').reset();
-            
-            if(method.includes('taishin')) {
-                document.getElementById('expMethod').value = activeTaishinPlan;
+            if (editingId) {
+                // 修改現有資料
+                const index = expenses.findIndex(exp => exp.id === editingId);
+                if (index !== -1) {
+                    expenses[index] = { ...expenses[index], name, amount, currency, method };
+                }
+                cancelEdit(); // 修改完直接呼叫取消編輯來還原UI
             } else {
-                // 如果是新增其他卡片，保持該卡片選擇，或重設（此處保持目前設計即可）
+                // 新增資料
+                expenses.push({ id: Date.now(), name, amount, currency, method });
+                document.getElementById('expenseForm').reset();
+                if(method.includes('taishin')) {
+                    document.getElementById('expMethod').value = activeTaishinPlan;
+                }
             }
             
+            saveData();
             calculateAll();
         }
 
         function deleteExpense(id) {
-            expenses = expenses.filter(exp => exp.id !== id);
-            saveData();
-            calculateAll();
+            if(confirm('確定要刪除這筆紀錄嗎？')) {
+                expenses = expenses.filter(exp => exp.id !== id);
+                // 如果刪除的剛好是正在編輯的項目，就取消編輯狀態
+                if (editingId === id) cancelEdit();
+                saveData();
+                calculateAll();
+            }
         }
 
         function clearAll() {
             if(confirm('確定要清空所有紀錄嗎？')) {
                 expenses = [];
+                cancelEdit();
                 saveData();
                 calculateAll();
             }
@@ -370,7 +430,10 @@
                     <td class="p-4 font-extrabold">NT$ ${twdAmount.toLocaleString()}</td>
                     <td class="p-4"><span class="px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide ${badgeClass}">${methodText}</span></td>
                     <td class="p-4 font-bold text-[#E58889]">${rewardText}</td>
-                    <td class="p-4 text-center"><button onclick="deleteExpense(${exp.id})" class="text-[#E58889] hover:bg-[#F9F0ED] p-1.5 rounded-lg transition">刪除</button></td>
+                    <td class="p-4 text-center whitespace-nowrap space-x-1">
+                        <button onclick="editExpense(${exp.id})" class="text-[#567357] hover:bg-[#F9F0ED] p-1.5 rounded-lg transition font-medium">編輯</button>
+                        <button onclick="deleteExpense(${exp.id})" class="text-[#E58889] hover:bg-[#F9F0ED] p-1.5 rounded-lg transition font-medium">刪除</button>
+                    </td>
                 `;
                 listBody.appendChild(tr);
             });
