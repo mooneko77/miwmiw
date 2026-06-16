@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🇮🇹 Italy Trip Planner 2025 - AI Enabled</title>
+    
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 載入 Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 載入 Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // --- 羅馬競技場主題色系 ---
+                        'colosseum-dark': '#793A2D',    // 深赤陶色 (原 deep-sea-blue)
+                        'stone-dark': '#4A433A',        // 深石灰色 (原 med-blue)
+                        'stone-light': '#D4BF9B',       // 暖淺石色 (原 sky-blue)
+                        'roman-bronze': '#C5A35E',      // 羅馬青銅色 (原 accent-gold)
+                        
+                        // 基礎色
+                        'marble-white': '#F9F5EF',      // 溫暖的背景底色 (原 F9F9F9)
+                        'soft-gray': '#E5E7EB',         // 背景灰 (不變)
+                        
+                        // AI 功能色 (保持高對比度粉色)
+                        'ai-pink': '#EC4899',           
+                        'ai-light-pink': '#FDF2F8',     
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        body {
+            /* 調整為暖淺米色 */
+            background-color: #F9F5EF; 
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Noto Sans TC', sans-serif;
+            color: #334155;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #ffffff; 
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+            position: relative;
+            padding-bottom: 90px;
+        }
+
+        /* --- 頁首 (Head/Banner) --- */
+        .header-bg {
+            background-color: #ffffff; 
+            padding: 0; 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); 
+            border-bottom-left-radius: 35px; 
+            border-bottom-right-radius: 35px;
+            z-index: 10; 
+            padding-bottom: 0px; 
+        }
+        
+        .header-image-container {
+            width: 100%;
+            height: 250px; 
+            overflow: hidden;
+            /* 調整為配合競技場的深土色 */
+            background-color: #A36B5C; 
+            border-bottom-left-radius: 35px; 
+            border-bottom-right-radius: 35px;
+        }
+        
+        .header-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            display: block; 
+        }
+        
+        /* 移除雪花圖層，改用柔和陰影 */
+        .snow-layer { display: none; } 
+        
+        /* --- Tab Bar --- */
+        .side-tab-bar {
+            position: absolute;
+            bottom: 45px; 
+            right: 16px;
+            z-index: 30;
+            display: flex;
+            flex-direction: row;
+            gap: 8px; 
+        }
+        
+        .tab-button {
+            width: 40px; 
+            height: 40px;
+            border-radius: 9999px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); 
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            /* 替換為深赤陶色 */
+            background-color: #793A2D; 
+            color: #ffffff;
+            box-shadow: 0 6px 15px rgba(121, 58, 45, 0.4); 
+            transform: scale(1.05);
+        }
+        
+        .tab-button:not(.active) {
+            background-color: #ffffff;
+            /* 替換為暖淺石色 */
+            color: #D4BF9B; 
+        }
+
+
+        /* --- Main Content --- */
+        .app-main {
+            padding-top: 25px !important; 
+            position: relative;
+            z-index: 5;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .card-shadow {
+            /* 替換為暖石色的陰影 */
+            box-shadow: 0 4px 20px rgba(212, 191, 155, 0.5); 
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fab-shadow {
+            /* 替換為羅馬青銅色的陰影 */
+            box-shadow: 0 4px 15px rgba(197, 163, 94, 0.5); 
+        }
+
+        .note-content {
+            max-height: 2.5rem;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .note-content.expanded {
+            max-height: 500px;
+        }
+        
+        .expense-category-tag {
+            min-width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .expenses-banner {
+            /* 替換為深石灰到深赤陶色的漸變 */
+            background: linear-gradient(135deg, #4A433A 0%, #793A2D 100%); 
+        }
+        
+        .date-selector-sticky {
+            background-color: #ffffff;
+            border-bottom: 1px solid #f0f0f0; 
+            z-index: 20; 
+            top: 0; 
+        }
+        
+        .ai-recommendation-output {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #FDF2F8; /* ai-light-pink */
+            border-radius: 12px;
+            border: 1px solid #FBCFE8; /* Pink-200 */
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="app-container">
+
+    <div class="header-bg relative">
+        <div class="header-image-container">
+            <!-- 替換為羅馬競技場主題 Placeholder -->
+            <img src="https://placehold.co/480x250/A36B5C/E0C39C?text=The+Colosseum" alt="義大利家族旅行計畫 - 羅馬競技場主題">
+        </div>
+        
+        <div class="snow-layer"></div> 
+        
+        <div class="side-tab-bar">
+            <button @click="currentTab = 'itinerary'" title="行程" 
+                    :class="{'active': currentTab === 'itinerary'}" 
+                    class="tab-button">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </button>
+            
+            <button @click="currentTab = 'outfit'" title="穿搭" 
+                    :class="{'active': currentTab === 'outfit'}" 
+                    class="tab-button">
+                <i class="fa-solid fa-shirt"></i>
+            </button>
+            
+            <button @click="currentTab = 'info'" title="資訊" 
+                    :class="{'active': currentTab === 'info'}" 
+                    class="tab-button">
+                <i class="fa-solid fa-circle-info"></i>
+            </button>
+            
+            <button @click="currentTab = 'shopping'" title="購物" 
+                    :class="{'active': currentTab === 'shopping'}" 
+                    class="tab-button">
+                <i class="fa-solid fa-basket-shopping"></i>
+            </button>
+            
+            <button @click="currentTab = 'expenses'" title="花費" 
+                    :class="{'active': currentTab === 'expenses'}" 
+                    class="tab-button">
+                <i class="fa-solid fa-coins"></i>
+            </button>
+            
+            <!-- 新增 AI 工具 Tab -->
+            <button @click="currentTab = 'ai-tools'" title="AI工具" 
+                    :class="{'active': currentTab === 'ai-tools'}" 
+                    class="tab-button bg-ai-pink hover:bg-ai-pink/80">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+        </div>
+        </div>
+
+    
+    <main class="p-4 app-main">
+        
+        <!-- 行程頁 -->
+        <div v-if="currentTab === 'itinerary'" class="animate-fade-in">
+            
+            <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-2 snap-x px-1 sticky date-selector-sticky pt-1 -mx-4 px-4">
+                <div v-for="(day, index) in dates" :key="index" 
+                     @click="selectedDateIndex = index"
+                     class="snap-center flex-shrink-0 w-[58px] h-[68px] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 border-2 shadow-sm"
+                     :class="selectedDateIndex === index ?
+'bg-colosseum-dark text-white border-colosseum-dark shadow-lg scale-105' : 'bg-white text-slate-400 border-white hover:bg-soft-gray'">
+                    
+                    <span class="text-sm font-bold uppercase tracking-wider">{{ day.weekday }}</span> 
+                    <span class="text-xs font-medium opacity-70">{{ day.date }}</span> 
+                </div>
+            </div>
+
+            <div v-if="weatherData[selectedDateIndex]" class="mb-4 bg-marble-white border border-stone-light/50 rounded-2xl p-4 flex justify-between items-center shadow-md">
+                
+                <!-- 左側：天氣與氣溫 -->
+                <div class="flex items-start text-colosseum-dark space-x-4">
+                    <i :class="getWeatherIcon(weatherData[selectedDateIndex].condition)" class="text-5xl text-stone-dark"></i>
+                    
+                    <div class="pt-1">
+                        <span class="text-3xl font-extrabold leading-none">{{ weatherData[selectedDateIndex].temp.split('/')[0] }}°</span>
+                        <span class="text-sm font-light text-slate-500 ml-1">/ {{ weatherData[selectedDateIndex].temp.split('/')[1] }}°C</span>
+                        <span class="block text-xs text-slate-600 mt-1">體感: {{ weatherData[selectedDateIndex].feel }}°C</span> 
+                    </div>
+                </div>
+                
+                <!-- 右側：匯率與交通 -->
+                <div class="text-right text-xs text-slate-600 pl-3 space-y-2">
+                    <!-- 每日匯率顯示 -->
+                    <div class="bg-roman-bronze/10 text-colosseum-dark px-2 py-1 rounded-lg border border-roman-bronze/30 font-bold">
+                        <i class="fa-solid fa-arrow-right-arrow-left text-xs mr-1"></i> 
+                        €1 = NT$ {{ weatherData[selectedDateIndex].exchangeRate }}
+                    </div>
+                    
+                    <span class="font-bold block text-slate-700">{{ getWeatherDescription(weatherData[selectedDateIndex].condition) }}</span>
+                    
+                    <span v-if="dates[selectedDateIndex].hasCar" class="mt-1 block text-colosseum-dark font-bold">
+                        <i class="fa-solid fa-car-side mr-1 text-roman-bronze"></i> 租車日
+                        <span v-if="dates[selectedDateIndex].tollFee" class="ml-2 bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
+                            €{{ formatNumber(dates[selectedDateIndex].tollFee) }}
+                        </span>
+                    </span>
+                    <span v-else class="mt-1 block text-slate-400">本日步行/大眾運輸</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div v-for="(item, idx) in currentItinerary" :key="item.id" class="relative group">
+                    
+                    <div v-if="idx > 
+0" class="pl-8 pb-2 flex items-center text-xs text-slate-400">
+                        <div class="h-6 w-0.5 bg-slate-200 absolute left-6 -top-3"></div>
+                        
+                        <i :class="getTransportIcon(currentItinerary[idx].transportType)" 
+                            class="mr-2 text-slate-300 cursor-pointer hover:text-colosseum-dark transition-colors" 
+                            @click="openMapDirections(currentItinerary[idx - 1], item)">
+                        </i>
+                        <span class="font-bold">{{ item.travelTime ||
+'約 15 分鐘' }}</span>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl p-5 card-shadow relative overflow-hidden flex items-start border border-stone-light/50">
+                        
+                        <div class="mr-4 flex flex-col items-center min-w-[50px]">
+                            <div class="p-2 rounded-full text-white shadow-md text-base mb-1" :class="getCategoryColor(item.category)">
+                                <i :class="getCategoryIcon(item.category)"></i>
+                            </div>
+                            <span v-if="item.startTime" class="text-xs font-bold text-slate-600 mt-1">{{ item.startTime }}</span>
+                        </div>
+
+                        <div class="flex-1 pb-1">
+                            <h3 class="text-lg font-bold text-slate-800 mb-1 leading-tight pr-8">{{ item.name }}</h3>
+                            
+                            <div 
+class="text-sm text-slate-500 space-y-1.5 mt-2">
+                                <p v-if="item.hours" class="flex items-center"><i class="fa-regular fa-clock w-4 text-center mr-2 text-stone-light"></i> 營業: {{ item.hours }}</p>
+                                <p v-if="item.price" class="flex items-center"><i class="fa-solid fa-ticket w-4 text-center mr-2 text-stone-light"></i> 門票/費用: {{ item.price }}</p>
+                                <p v-if="item.address" class="flex items-start"><i class="fa-solid fa-location-dot w-4 text-center mr-2 mt-1 text-stone-light"></i> {{ item.address }}</p>
+                            </div>
+
+                            <div v-if="item.note && item.note.length > 0" 
+class="mt-3 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                <p class="text-slate-600 font-bold mb-1 flex items-center">
+                                    <i class="fa-solid fa-highlighter text-roman-bronze mr-2"></i> 備註
+                                </p>
+                                <div class="note-content" :class="{'expanded': item.isNoteExpanded}">
+                                    {{ item.note }}
+                                </div>
+                                <button v-if="item.note.length > 50" @click="item.isNoteExpanded = !item.isNoteExpanded" class="text-colosseum-dark font-bold mt-1 block">
+                                    {{ 
+item.isNoteExpanded ? '收合備註' : '查看更多...' }}
+                                </button>
+                            </div>
+                            
+                            <!-- AI 行程建議按鈕 -->
+                            <div v-if="idx === currentItinerary.length - 1" class="pt-4 mt-4 border-t border-slate-100">
+                                <h4 class="text-base font-semibold text-ai-pink mb-2 flex items-center">
+                                    <i class="fa-solid fa-bowl-food w-4 h-4 mr-2"></i>
+                                    AI 晚餐/建議
+                                </h4>
+                                <button @click="getRecommendation(selectedDateIndex)" :disabled="isRecommendationLoading[selectedDateIndex]" 
+                                        :id="'recommendBtn-' + selectedDateIndex" 
+                                        class="flex items-center text-sm font-semibold text-white bg-ai-pink hover:bg-ai-pink/80 rounded-lg px-4 py-2 transition duration-150 disabled:bg-pink-300">
+                                    <i :class="isRecommendationLoading[selectedDateIndex] ? 'fa-solid fa-spinner animate-spin' : 'fa-solid fa-martini-glass'" class="w-4 h-4 mr-2"></i>
+                                    {{ isRecommendationLoading[selectedDateIndex] ? 'AI 正在搜尋中...' : '推薦今日晚餐/活動' }}
+                                </button>
+                                <!-- AI 建議輸出 -->
+                                <div v-if="recommendationOutput[selectedDateIndex] && recommendationOutput[selectedDateIndex].text" 
+                                     class="ai-recommendation-output">
+                                     <div class="text-sm whitespace-pre-wrap text-slate-800" v-html="formatMarkdown(recommendationOutput[selectedDateIndex].text)"></div>
+                                     <div v-if="recommendationOutput[selectedDateIndex].sources.length" class="mt-3 pt-2 border-t border-pink-200">
+                                        <p class="text-xs text-slate-500 font-semibold mb-1">參考來源:</p>
+                                        <div class="space-y-1">
+                                            <a v-for="(source, sIdx) in recommendationOutput[selectedDateIndex].sources" :key="sIdx" 
+                                               :href="source.uri" target="_blank" 
+                                               class="text-colosseum-dark hover:underline text-xs block truncate" 
+                                               :title="source.title || '點擊查看來源'">
+                                                {{ sIdx + 1 }}. {{ source.title || '無標題' }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End AI Feature -->
+                        </div>
+
+                        <div class="absolute top-3 right-3 flex flex-col space-y-1">
+                            <button v-if="idx > 0" @click.stop="moveItineraryUp(item.id)" class="w-7 h-7 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center text-xs hover:bg-slate-300 transition-colors" title="上移">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                            <button v-if="idx < currentItinerary.length - 1" @click.stop="moveItineraryDown(item.id)" class="w-7 h-7 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center text-xs hover:bg-slate-300 transition-colors" title="下移">
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </button>
+                            <button @click.stop="openMap(item.address || item.name)" class="w-7 h-7 bg-stone-light/80 text-colosseum-dark rounded-full flex items-center justify-center text-xs hover:bg-colosseum-dark hover:text-white transition-colors" title="Google Maps 導航">
+                                <i class="fa-solid fa-location-arrow"></i>
+                            </button>
+                            <button @click.stop="editItem(item)" class="w-7 h-7 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center text-xs hover:bg-slate-200 transition-colors" title="編輯行程">
+                                <i class="fa-solid fa-pencil"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="currentItinerary.length === 0" class="text-center py-16 text-slate-300">
+                    <i class="fa-solid fa-map-location-dot text-5xl mb-3 text-slate-200"></i>
+                    <p class="text-sm">本日尚無行程<br>請點擊右下角新增</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 新增：穿搭頁面 -->
+        <div v-if="currentTab === 'outfit'" class="animate-fade-in">
+            <div class="flex overflow-x-auto hide-scrollbar space-x-3 pb-4 mb-2 snap-x px-1 sticky date-selector-sticky pt-1 -mx-4 px-4">
+                <div v-for="(day, index) in dates" :key="index" 
+                     @click="selectedDateIndex = index"
+                     class="snap-center flex-shrink-0 w-[58px] h-[68px] rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 border-2 shadow-sm"
+                     :class="selectedDateIndex === index ?
+'bg-colosseum-dark text-white border-colosseum-dark shadow-lg scale-105' : 'bg-white text-slate-400 border-white hover:bg-soft-gray'">
+                    
+                    <span class="text-sm font-bold uppercase tracking-wider">{{ day.weekday }}</span> 
+                    <span class="text-xs font-medium opacity-70">{{ day.date }}</span> 
+                </div>
+            </div>
+            
+            <div class="mb-4 bg-roman-bronze/10 border border-roman-bronze/50 rounded-2xl p-4 flex justify-between items-center shadow-md">
+                <div class="text-colosseum-dark font-bold text-lg flex items-center">
+                    <i class="fa-solid fa-star-of-life mr-2 text-roman-bronze"></i>
+                    本日穿搭主題
+                </div>
+                <div class="text-sm text-slate-600">
+                    預計溫度: {{ weatherData[selectedDateIndex].temp }}°C (體感 {{ weatherData[selectedDateIndex].feel }}°C)
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-6 card-shadow space-y-5">
+                
+                <!-- 新增圖片上傳區 -->
+                <div class="relative mb-6">
+                    <input type="file" @change="handleOutfitImageUpload" class="hidden" id="outfitFileInput" accept="image/*">
+                    <label for="outfitFileInput" class="w-full h-48 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer text-slate-400 hover:bg-slate-100 hover:border-border-slate-300 transition-all overflow-hidden">
+                        <span v-if="!currentOutfit.image" class="flex flex-col items-center text-sm text-colosseum-dark">
+                            <i class="fa-solid fa-camera text-3xl mb-2"></i> 上傳今日穿搭參考圖
+                            <p class="mt-2 text-xs text-slate-500">(點擊或拖曳檔案)</p>
+                        </span>
+                        <img v-else :src="currentOutfit.image" class="h-full w-full object-cover">
+                    </label>
+                    <button v-if="currentOutfit.image" @click="currentOutfit.image = null" class="absolute top-2 right-2 bg-red-600/90 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm shadow-md hover:bg-red-700 transition-colors" title="移除圖片">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <!-- 圖片上傳區結束 -->
+
+                <div class="relative">
+                    <label class="text-xs text-colosseum-dark font-bold mb-1 block">穿搭主題/風格</label>
+                    <input v-model="currentOutfit.theme" type="text" placeholder="例如：米蘭時尚街拍風 / 羅馬古著風" 
+                           class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-roman-bronze">
+                </div>
+                
+                <div class="relative">
+                    <label class="text-xs text-colosseum-dark font-bold mb-1 block">主要單品 (列表)</label>
+                    <textarea v-model="currentOutfit.items" rows="4" placeholder="每行一個單品，例如：
+- 黑色羊毛大衣
+- 紅色針織衫
+- 皮革長褲
+- 羅馬青銅色項鍊" 
+                              class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-roman-bronze"></textarea>
+                    <p class="text-xs text-slate-400 mt-1">請使用換行分隔單品，方便查看。</p>
+                </div>
+                
+                <div class="relative">
+                    <label class="text-xs text-colosseum-dark font-bold mb-1 block">備註/配件/妝容</label>
+                    <textarea v-model="currentOutfit.note" rows="3" placeholder="例如：這天會下雨，記得帶防水的鞋子。拍照時要搭配太陽眼鏡。" 
+                              class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-roman-bronze"></textarea>
+                </div>
+                
+                <button @click="saveOutfit" class="w-full py-3 rounded-xl bg-colosseum-dark text-white font-bold text-sm shadow-lg shadow-colosseum-dark/30 transition-all hover:bg-stone-dark">
+                    <i class="fa-solid fa-save mr-2"></i> 儲存今日穿搭
+                </button>
+            </div>
+        </div>
+
+        <!-- 資訊頁 -->
+        <div v-if="currentTab === 'info'" class="space-y-5 animate-fade-in">
+            
+            <!-- 替換為羅馬色系漸變 -->
+            <div class="bg-gradient-to-r from-stone-dark to-colosseum-dark rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 
+bg-white/10 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+                <h3 class="font-bold text-lg mb-4 flex items-center relative z-10"><i class="fa-solid fa-calculator mr-2"></i> 匯率換算</h3>
+                <div class="flex items-center justify-between space-x-3 relative z-10">
+                    <div class="flex-1">
+                        <label class="text-[10px] 
+text-stone-light block mb-1 uppercase tracking-wider">EUR (歐元)</label>
+                        <input type="number" v-model="currencyInput" @input="calculateCurrency" class="w-full bg-white/20 border border-white/30 rounded-xl px-3 py-2.5 text-white placeholder-white/50 focus:outline-none focus:bg-white/30 text-lg font-bold" placeholder="€">
+                    </div>
+                    <i class="fa-solid fa-arrow-right-arrow-left text-stone-light mt-5"></i>
+                    <div class="flex-1">
+                        <label class="text-[10px] text-stone-light block mb-1 uppercase tracking-wider">TWD (台幣)</label>
+                        <div class="w-full bg-white/10 rounded-xl px-3 py-2.5 text-white text-lg font-bold border border-transparent">
+                            $ {{ currencyResult }}
+                        </div>
+                    </div>
+                </div>
+                <p class="text-[10px] text-stone-light/70 mt-3 text-right relative z-10">匯率基準: {{ EXCHANGE_RATE_EUR }} (每日匯率請見行程頁)</p>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-5 card-shadow">
+                <h3 class="font-bold text-slate-800 mb-3 border-b border-slate-100 pb-2"><i class="fa-solid fa-plane-departure text-blue-500 mr-2"></i> 航班資訊</h3>
+                <div class="space-y-4">
+                    <div class="bg-stone-light/20 rounded-xl p-3 border border-stone-light/50">
+                        <div class="flex justify-between text-sm font-bold text-colosseum-dark mb-1">
+                            <span>PVG 上海浦東</span>
+                            <i class="fa-solid fa-plane text-xs"></i>
+                            <span>MXP 米蘭馬爾彭薩</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span>01:45 (12/14)</span>
+                            <span>CA967</span>
+                            <span>07:15 (12/14)</span>
+                        </div>
+                    </div>
+                    <div class="bg-orange-50 rounded-xl p-3 border border-orange-100">
+                        <div class="flex justify-between text-sm font-bold text-orange-800 mb-1">
+                            <span>FCO 羅馬菲烏米奇諾</span>
+                            <i class="fa-solid fa-plane text-xs"></i>
+                            <span>TPE 台北</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span>15:00 (12/21)</span>
+                            <span>TBC 待定</span>
+                            <span>10:30 (12/22)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 card-shadow">
+                <h3 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-3"><i class="fa-solid fa-hotel text-indigo-500 mr-2"></i> 住宿資訊</h3>
+                <ul class="space-y-5">
+                    <li v-for="hotel in hotels" class="border-b last:border-0 pb-4 last:pb-0">
+                        <div class="flex justify-between items-start group">
+                            <div class="flex-1">
+                                <span class="font-bold block text-slate-700 text-lg">{{ hotel.name }}</span>
+                                <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full inline-block mt-1">{{ hotel.date }}</span>
+                            </div>
+                            <button @click="openMap(hotel.name)" class="w-8 h-8 rounded-full bg-indigo-50/50 text-colosseum-dark flex items-center justify-center group-hover:bg-colosseum-dark group-hover:text-white transition-all"><i class="fa-solid fa-location-arrow text-xs"></i></button>
+                        </div>
+                        <div class="text-sm text-slate-500 mt-2 space-y-1">
+                            <p class="flex items-center"><i class="fa-solid fa-phone w-4 text-center mr-2 text-slate-300"></i> <a :href="'tel:' + hotel.phone" class="hover:text-colosseum-dark">{{ hotel.phone }}</a></p>
+                            <p class="flex items-start"><i class="fa-solid fa-map-pin w-4 text-center mr-2 mt-1 text-slate-300"></i> {{ hotel.address }}</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 緊急聯絡資訊 -->
+            <div class="bg-red-50 rounded-3xl p-6 border border-red-100">
+                <h3 class="font-bold text-red-800 mb-4"><i class="fa-solid fa-kit-medical mr-2"></i> 緊急聯絡 (義大利)</h3>
+                <div class="grid grid-cols-3 gap-4 text-center text-xs">
+                    <a href="tel:113" class="bg-white py-3 rounded-xl shadow-sm text-red-600 font-bold block border border-red-100 hover:bg-red-600 hover:text-white transition-all">
+                        <i class="fa-solid fa-user-shield mr-1"></i> 警察 113
+                    </a>
+                    <a href="tel:118" class="bg-white py-3 rounded-xl shadow-sm text-red-600 font-bold block border border-red-100 hover:bg-red-600 hover:text-white transition-all">
+                        <i class="fa-solid fa-truck-medical mr-1"></i> 救護 118
+                    </a>
+                    <a href="tel:112" class="bg-white py-3 rounded-xl shadow-sm text-red-600 font-bold block border border-red-100 hover:bg-red-600 hover:text-white transition-all">
+                        <i class="fa-solid fa-phone mr-1"></i> 歐盟通用 112
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 購物頁 -->
+        <div v-if="currentTab === 'shopping'" class="animate-fade-in">
+            <div class="grid grid-cols-2 gap-4">
+                <div v-for="(item, idx) in shoppingList" :key="idx" class="bg-white rounded-2xl p-3 card-shadow relative group">
+                    <div class="aspect-square bg-slate-50 rounded-xl mb-3 overflow-hidden relative border border-slate-100">
+                        <!-- 圖片 Placeholder -->
+                        <img v-if="item.image" :src="item.image" class="w-full h-full object-cover">
+                        <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
+                            <i class="fa-solid fa-bag-shopping text-3xl"></i>
+                        </div>
+                        <button @click="removeShoppingItem(idx)" class="absolute top-2 right-2 bg-black/60 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <p class="font-bold text-sm text-slate-800 truncate px-1">{{ item.name }}</p>
+                </div>
+                
+                <div v-if="shoppingList.length === 0" class="col-span-2 text-center py-16 text-slate-300">
+                    <i class="fa-solid fa-bag-shopping text-5xl mb-3 text-slate-200"></i>
+                    <p class="text-sm">購物清單空白<br>請點擊右下角新增</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 花費頁 -->
+        <div v-if="currentTab === 'expenses'" class="animate-fade-in">
+             <!-- 替換為羅馬色系漸變 -->
+            <div class="expenses-banner text-white rounded-3xl p-8 mb-6 relative overflow-hidden">
+                
+                <div class="absolute -right-10 -top-10 bg-white/10 w-48 h-48 rounded-full blur-3xl"></div>
+                <div class="absolute -left-10 -bottom-10 bg-stone-light/20 w-40 h-40 rounded-full blur-2xl"></div>
+                <p class="text-sm text-stone-light/80 mb-2 relative z-10">目前總花費 (EUR)</p>
+                <h2 class="text-5xl font-bold relative z-10 tracking-tight">€ {{ formatNumber(totalExpensesEUR) }}</h2>
+                <p class="text-sm text-right mt-2 opacity-80 
+relative z-10">約 NT$ {{ formatNumber(totalExpensesTWD) }} (匯率以 {{ EXCHANGE_RATE_EUR }} 計算)</p>
+            </div>
+
+            <div class="bg-white rounded-t-3xl min-h-[500px] p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] -mx-4 px-8">
+                <h3 class="font-bold text-slate-800 mb-5 flex items-center">
+                    <i class="fa-solid fa-receipt text-slate-300 mr-2"></i>支出紀錄
+                </h3>
+                <div class="space-y-5">
+                    <div v-for="(exp, idx) in expenses" :key="idx" class="flex items-center justify-between border-b border-slate-50 pb-4 last:border-0">
+                        <div class="flex items-center">
+                            
+                            <div class="expense-category-tag mr-4" :class="[getCategoryColor(exp.category), 'text-white']">
+                                {{ getCategoryLabel(exp.category) }}
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-700 text-sm mb-0.5">{{ exp.name }}</p>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-wide">{{ exp.date }} · {{ exp.payment === 'card' ?
+'信用卡' : '現金' }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex items-center">
+                            <p class="font-bold text-slate-700">€{{ formatNumber(exp.amount) }}</p>
+                            <button @click="removeExpense(idx)" class="w-5 h-5 ml-3 text-red-300 hover:text-red-500 transition-colors flex items-center justify-center">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI 工具頁面 -->
+        <div v-if="currentTab === 'ai-tools'" class="animate-fade-in space-y-6">
+            <div class="bg-white p-6 rounded-3xl shadow-lg border border-ai-pink/20">
+                <h2 class="text-xl font-bold mb-4 text-ai-pink border-b border-pink-100 pb-3 flex items-center">
+                    <i class="fa-solid fa-language w-5 h-5 mr-2"></i>
+                    義大利文即時翻譯 (Gemini)
+                </h2>
+                <div class="space-y-3">
+                    <input type="text" v-model="translateInput" :disabled="isTranslating"
+                           placeholder="輸入中文或義大利文來翻譯 (例如：請問洗手間在哪裡？)" 
+                           class="w-full rounded-xl border-gray-300 shadow-sm p-3 border focus:border-ai-pink focus:ring-ai-pink">
+                    <button @click="translatePhrase" :disabled="isTranslating || !translateInput.trim()"
+                            class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-xl shadow-md text-white bg-ai-pink hover:bg-ai-pink/80 transition duration-150 disabled:bg-pink-300">
+                        <i :class="isTranslating ? 'fa-solid fa-spinner animate-spin' : 'fa-solid fa-comment-dots'" class="w-5 h-5 mr-2"></i>
+                        {{ isTranslating ? '翻譯中...' : '立即翻譯' }}
+                    </button>
+                </div>
+                <div v-if="translationOutput" class="mt-4 p-3 bg-ai-light-pink text-slate-800 rounded-xl text-sm">
+                    <h5 class="font-bold text-sm text-ai-pink mb-1">翻譯結果：</h5>
+                    <div class="whitespace-pre-wrap" v-html="formatMarkdown(translationOutput)"></div>
+                </div>
+                <div v-else-if="translationError" class="mt-4 p-3 bg-red-100 text-red-700 rounded-xl text-sm">
+                     <i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ translationError }}
+                </div>
+            </div>
+            
+             <div class="bg-white p-6 rounded-3xl shadow-lg border border-ai-pink/20">
+                <h2 class="text-xl font-bold mb-4 text-ai-pink border-b border-pink-100 pb-3 flex items-center">
+                    <i class="fa-solid fa-circle-question w-5 h-5 mr-2"></i>
+                    旅遊問答 (Gemini Search)
+                </h2>
+                <div class="space-y-3">
+                    <input type="text" v-model="qnaInput" :disabled="isQNALoading"
+                           placeholder="輸入你的義大利問題 (例如：羅馬競技場的歷史？)" 
+                           class="w-full rounded-xl border-gray-300 shadow-sm p-3 border focus:border-ai-pink focus:ring-ai-pink">
+                    <button @click="searchQNA" :disabled="isQNALoading || !qnaInput.trim()"
+                            class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-xl shadow-md text-white bg-colosseum-dark hover:bg-colosseum-dark/80 transition duration-150 disabled:bg-slate-400">
+                        <i :class="isQNALoading ? 'fa-solid fa-spinner animate-spin' : 'fa-solid fa-magnifying-glass'" class="w-5 h-5 mr-2"></i>
+                        {{ isQNALoading ? '搜尋中...' : '查找答案' }}
+                    </button>
+                </div>
+                <div v-if="qnaOutput.text" class="mt-4 p-3 bg-slate-50 text-slate-800 rounded-xl text-sm">
+                    <h5 class="font-bold text-sm text-colosseum-dark mb-1">AI 查找結果：</h5>
+                    <div class="whitespace-pre-wrap" v-html="formatMarkdown(qnaOutput.text)"></div>
+                     <div v-if="qnaOutput.sources.length" class="mt-3 pt-2 border-t border-slate-200">
+                        <p class="text-xs text-slate-500 font-semibold mb-1">參考來源:</p>
+                        <div class="space-y-1">
+                            <a v-for="(source, sIdx) in qnaOutput.sources" :key="sIdx" 
+                               :href="source.uri" target="_blank" 
+                               class="text-colosseum-dark hover:underline text-xs block truncate" 
+                               :title="source.title || '點擊查看來源'">
+                                {{ sIdx + 1 }}. {{ source.title || '無標題' }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                 <div v-else-if="qnaError" class="mt-4 p-3 bg-red-100 text-red-700 rounded-xl text-sm">
+                     <i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ qnaError }}
+                </div>
+            </div>
+        </div>
+        <!-- End AI Tools Page -->
+
+    </main>
+
+ 
+    <button v-if="currentTab === 'itinerary' || currentTab === 'shopping' || currentTab === 'expenses'" @click="handleAddClick" class="fixed bottom-6 right-6 w-14 h-14 bg-roman-bronze rounded-full fab-shadow text-colosseum-dark text-2xl flex items-center justify-center hover:scale-110 transition-transform z-40">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <div v-if="showShoppingModal" class="fixed inset-0 bg-colosseum-dark/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-5 text-center text-slate-800">新增購物清單</h3>
+            <input v-model="newShoppingItem.name" type="text" placeholder="商品名稱" class="w-full 
+bg-slate-50 border-none rounded-xl p-4 mb-4 focus:ring-2 focus:ring-colosseum-dark text-sm">
+            <div class="relative mb-6">
+                <input type="file" @change="handleImageUpload" class="hidden" id="fileInput">
+                <label for="fileInput" class="w-full h-36 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center cursor-pointer text-slate-400 hover:bg-slate-100 hover:border-border-slate-300 transition-all">
+                    <span v-if="!newShoppingItem.image" class="flex flex-col items-center text-xs">
+                        <i class="fa-solid fa-camera text-2xl mb-2"></i> 上傳照片
+                    </span>
+                    <img v-else :src="newShoppingItem.image" class="h-full w-full object-contain rounded-xl">
+                </label>
+           
+            </div>
+            <div class="flex space-x-3">
+                <button @click="showShoppingModal = false" class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-500 font-bold text-sm">取消</button>
+                <button @click="addShoppingItem" class="flex-1 py-3 rounded-xl bg-colosseum-dark text-white font-bold text-sm shadow-lg shadow-colosseum-dark/30">新增</button>
+            </div>
+        </div>
+    </div>
+    
+    <div 
+v-if="showExpenseModal" class="fixed inset-0 bg-colosseum-dark/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-5 text-center text-slate-800">記一筆</h3>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <input v-model="newExpense.date" type="date" class="bg-slate-50 rounded-xl p-3 text-sm text-slate-600 outline-none">
+                <select v-model="newExpense.category" class="bg-slate-50 
+rounded-xl p-3 text-sm text-slate-600 outline-none">
+                    <option value="food">飲食</option>
+                    <option value="shopping">購物</option>
+                    <option value="transport">交通</option>
+                    <option value="stay">住宿</option>
+            
+                    <option value="ticket">門票</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+            <input v-model="newExpense.name" placeholder="名稱 (如: 義大利麵)" class="w-full bg-slate-50 rounded-xl p-4 mb-4 text-sm outline-none focus:ring-2 focus:ring-roman-bronze">
+            <div class="relative mb-4">
+    
+                <span class="absolute left-4 top-4 text-slate-400 font-bold">€</span>
+                <input v-model.number="newExpense.amount" type="number" placeholder="金額" class="w-full bg-slate-50 rounded-xl p-4 pl-8 text-sm outline-none focus:ring-2 focus:ring-roman-bronze font-bold text-lg">
+            </div>
+            <div class="flex space-x-3 mb-6">
+                <button @click="newExpense.payment='cash'" :class="newExpense.payment==='cash' ? 'bg-colosseum-dark text-white' : 'bg-slate-100 text-slate-500'" class="flex-1 py-3 rounded-xl text-sm transition-colors"><i class="fa-solid fa-coins mr-1"></i> 現金</button>
+                <button @click="newExpense.payment='card'" :class="newExpense.payment==='card' ? 'bg-colosseum-dark text-white' : 'bg-slate-100 text-slate-500'" class="flex-1 py-3 rounded-xl text-sm transition-colors"><i class="fa-solid fa-credit-card mr-1"></i> 信用卡</button>
+            </div>
+            <div class="flex space-x-3">
+                <button @click="showExpenseModal = false" class="flex-1 py-3 rounded-xl bg-slate-100 text-slate-500 font-bold text-sm">取消</button>
+                <button @click="addExpense" class="flex-1 py-3 rounded-xl bg-roman-bronze text-colosseum-dark font-bold text-sm shadow-lg shadow-roman-bronze/30">儲存</button>
+            </div>
+        </div>
+    </div>
+    
+    <div v-if="showItineraryModal" class="fixed inset-0 bg-colosseum-dark/40 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="font-bold text-lg mb-5 text-center text-slate-800">{{ isEditMode ? '編輯行程' : '新增行程' }}</h3>
+            <div class="space-y-3">
+                <select v-model="newItinerary.category" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                    <option value="sightseeing">景點</option>
+                    <option value="food">飲食</option>
+                    <option value="shopping">購物</option>
+                    <option value="accommodation">住宿</option>
+                    <option value="flight">航班</option>
+                    <option value="transport">交通</option>
+                    <option value="ticket">門票</option>
+                    <option value="other">其他</option>
+                </select>
+                <input v-model="newItinerary.name" placeholder="名稱" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-colosseum-dark">
+                <input v-model="newItinerary.address" placeholder="地址/地點 (Google Map 搜尋用)" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-colosseum-dark">
+                <div class="grid grid-cols-2 gap-3">
+                    <input v-model="newItinerary.startTime" type="text" placeholder="時間 (e.g. 09:30)" class="bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                    <select v-model="newItinerary.transportType" class="bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                        <option value="walk">步行</option>
+                        <option value="car">自駕</option>
+                        <option value="bus">巴士</option>
+                        <option value="public">地鐵/JR</option>
+                        <option value="flight">飛機</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input v-model="newItinerary.travelTime" type="text" placeholder="車程/移動時間" class="bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                    <input v-model="newItinerary.hours" type="text" placeholder="營業時間" class="bg-slate-50 rounded-xl p-3 text-sm outline-none">
+                </div>
+                <input v-model="newItinerary.price" type="text" placeholder="門票/費用" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-colosseum-dark">
+                <textarea v-model="newItinerary.note" placeholder="備註/細節" rows="3" class="w-full bg-slate-50 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-colosseum-dark"></textarea>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button @click="showItineraryModal = false; isEditMode = false" :class="isEditMode ? 'w-1/3' : 'flex-1'" class="py-3 rounded-xl bg-slate-100 text-slate-500 font-bold text-sm">取消</button>
+                
+                <button v-if="isEditMode" @click="removeItineraryItem(newItinerary.id)" class="w-1/3 py-3 rounded-xl bg-red-100 text-red-600 font-bold text-sm hover:bg-red-200 transition-colors">
+                    <i class="fa-solid fa-trash-can mr-1"></i> 刪除
+                </button>
+                
+                <button @click="saveItineraryItem" :class="isEditMode ? 'w-1/3' : 'flex-1'" class="py-3 rounded-xl bg-colosseum-dark text-white font-bold text-sm shadow-lg shadow-colosseum-dark/30">{{ isEditMode ? '儲存修改' : '新增行程' }}</button>
+            </div>
+        </div>
+    </div>
+
+
+</div> <script type="module">
+    const { createApp, ref, computed, onMounted } = Vue
+
+    createApp({
+        setup() {
+            // Global variable for Gemini API Key (will be provided by the environment)
+            const API_KEY = ""; 
+            const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+            const EXCHANGE_RATE_EUR = 35.0; // 歐元 (EUR) 兌 台幣 (TWD) 匯率 - 基準值
+            const EXCHANGE_RATE = EXCHANGE_RATE_EUR;
+
+            // 標籤顏色與圖示定義
+            const CATEGORY_MAP = {
+                sightseeing: { color: 'bg-green-600', icon: 'fa-solid fa-camera' },
+                food: { color: 'bg-red-600', icon: 'fa-solid fa-utensils' },
+                shopping: { color: 'bg-indigo-600', icon: 'fa-solid fa-bag-shopping' },
+                accommodation: { color: 'bg-purple-600', icon: 'fa-solid fa-bed' },
+                flight: { color: 'bg-blue-600', icon: 'fa-solid fa-plane-departure' },
+                transport: { color: 'bg-orange-600', icon: 'fa-solid fa-train-subway' },
+                ticket: { color: 'bg-cyan-600', icon: 'fa-solid fa-ticket' },
+                other: { color: 'bg-slate-600', icon: 'fa-solid fa-circle-info' },
+                stay: { color: 'bg-purple-600', icon: 'fa-solid fa-hotel' }, 
+            };
+            const CATEGORY_LABEL_MAP = {
+                sightseeing: '景點', food: '飲食', shopping: '購物', accommodation: '住宿', flight: '航班', transport: '交通', ticket: '門票', other: '其他', stay: '住宿'
+            };
+
+            // 當前頁面
+            const currentTab = ref('itinerary');
+
+            // --- 資料定義：義大利行程 12/14-12/21 (未變更) ---
+            
+            const dates = ref([
+                { date: '12/14', weekday: '日', hasCar: false, tollFee: 0 }, // 米蘭
+                { date: '12/15', weekday: '一', hasCar: false, tollFee: 0 }, // 米蘭
+                { date: '12/16', weekday: '二', hasCar: false, tollFee: 0 }, // 米蘭→威尼斯
+                { date: '12/17', weekday: '三', hasCar: false, tollFee: 0 }, // 威尼斯→佛羅倫斯
+                { date: '12/18', weekday: '四', hasCar: false, tollFee: 0 }, // 佛羅倫斯
+                { date: '12/19', weekday: '五', hasCar: false, tollFee: 0 }, // 佛羅倫斯→羅馬
+                { date: '12/20', weekday: '六', hasCar: false, tollFee: 0 }, // 羅馬/梵蒂岡
+                { date: '12/21', weekday: '日', hasCar: false, tollFee: 0 }, // 羅馬/返程
+            ]);
+
+            const hotels = ref([
+                { name: '米蘭：米蘭時尚街區飯店', date: '12/14 - 12/16 (2晚)', phone: '+39-02-123456', address: 'Via della Spiga, Milano (米蘭)' },
+                { name: '佛羅倫斯：Hotel Paris', date: '12/17 - 12/18 (2晚)', phone: '+39-055-789012', address: 'Via Dei Benci 12, Firenze (佛羅倫斯)' },
+                { name: '羅馬：Starhotels Metropole', date: '12/19 - 12/21 (2晚)', phone: '+39-06-345678', address: 'Via Principe Amedeo 3, Roma (羅馬)' },
+            ]);
+            
+            // 行程數據 (未變更)
+            const itineraryData = ref([
+                // Day 1: 12/14 (日) 米蘭
+                [
+                    { id: 101, name: '機場抵達：米蘭馬爾彭薩機場 (MXP)', category: 'flight', startTime: '07:15', address: '米蘭馬爾彭薩機場', note: 'CA967 航班。準備搭火車/巴士進城。', hours: null, price: null, transportType: 'flight', travelTime: null, isNoteExpanded: false },
+                    { id: 102, name: '米蘭中央車站-行李寄存', category: 'other', startTime: '10:30', address: '米蘭中央車站', note: '使用 Radical Storage 或車站儲物櫃 (€10)', hours: null, price: '€10', transportType: 'public', travelTime: '1h', isNoteExpanded: false },
+                    { id: 103, name: '斯福爾扎古堡 & 森皮奧內公園', category: 'sightseeing', startTime: '11:30', address: 'Castello Sforzesco', note: '古堡外部免費參觀，博物館需門票。', hours: '07:00–19:30', price: '€5 (博物館)', transportType: 'public', travelTime: '30m', isNoteExpanded: false },
+                    { id: 104, name: '恩宠聖母教堂-最後的晚餐', category: 'sightseeing', startTime: '15:00', address: 'Santa Maria delle Grazie', note: '需提前預約門票，確認時間。', hours: '需預約', price: '約 €15', transportType: 'walk', travelTime: '20m', isNoteExpanded: false },
+                    { id: 105, name: '晚餐：米蘭當地特色餐廳', category: 'food', startTime: '19:00', address: 'Duomo 廣場周邊', note: '米蘭燉飯或米蘭炸肉排。', hours: null, price: null, transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                    { id: 106, name: '飯店 Check-in', category: 'accommodation', startTime: '21:00', address: '米蘭時尚街區飯店', note: '結束第一天行程', hours: null, price: null, transportType: 'public', travelTime: '30m', isNoteExpanded: false },
+                ],
+                // Day 2: 12/15 (一) 米蘭
+                [
+                    { id: 201, name: '米蘭大教堂 & 登頂', category: 'sightseeing', startTime: '09:00', address: 'Duomo di Milano', note: '建議一早前往登頂，避開人潮。', hours: '09:00–19:00', price: '約 €16', transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 202, name: '埃馬努埃萊二世拱廊 (購物)', category: 'shopping', startTime: '11:30', address: 'Galleria Vittorio Emanuele II', note: '欣賞華麗建築與精品店，尋找 Kiko。', hours: null, price: null, transportType: 'walk', travelTime: '5m', isNoteExpanded: false },
+                    { id: 203, name: '午餐：三明治或比薩', category: 'food', startTime: '~13:00', address: '拱廊附近快餐店', note: '快速解決午餐，繼續下午行程。', hours: null, price: null, transportType: 'walk', travelTime: '0m', isNoteExpanded: false },
+                    { id: 204, name: '聖貝納迪諾骸骨教堂', category: 'sightseeing', startTime: '14:30', address: 'San Bernardino alle Ossa', note: '獨特的骨頭裝飾禮拜堂。', hours: '13:00-17:30', price: '免費', transportType: 'public', travelTime: '15m', isNoteExpanded: false },
+                    { id: 205, name: '布雷拉畫廊', category: 'sightseeing', startTime: '16:00', address: 'Pinacoteca di Brera', note: '米蘭重要的美術館，欣賞義大利文藝復興作品。', hours: '10:00–18:00', price: '約 €15', transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                    { id: 206, name: '晚餐：時尚四邊形附近高級餐廳', category: 'food', startTime: '19:30', address: 'Via Montenapoleone 附近', note: '體驗米蘭的時尚與美食。', hours: null, price: null, transportType: 'walk', travelTime: '25m', isNoteExpanded: false },
+                ],
+                // Day 3: 12/16 (二) 米蘭 → 威尼斯
+                [
+                    { id: 301, name: '退房並前往車站', category: 'accommodation', startTime: '08:00', address: '米蘭時尚街區飯店', note: '搭乘火車前往威尼斯。', hours: null, price: null, transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                    { id: 302, name: '高鐵：米蘭中央車站 → 威尼斯 Mestre', category: 'transport', startTime: '09:00', address: '威尼斯 Mestre 車站', note: '高速火車，約 2.5 小時。', hours: null, price: '約 €30', transportType: 'public', travelTime: '2h30m', isNoteExpanded: false },
+                    { id: 303, name: '威尼斯 Mestre 住宿 Check-in', category: 'accommodation', startTime: '12:00', address: '威尼斯 Mestre', note: '放下行李。', hours: null, price: null, transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 304, name: '午餐：Mestre 或主島途中', category: 'food', startTime: '13:00', address: '威尼斯 Mestre 車站附近', note: '簡餐。', hours: null, price: null, transportType: 'walk', travelTime: '0m', isNoteExpanded: false },
+                    { id: 305, name: '水上巴士前往主島', category: 'transport', startTime: '14:30', address: '羅馬廣場 (Piazzale Roma)', note: '購買水上巴士票。', hours: null, price: '約 €7.5', transportType: 'public', travelTime: '30m', isNoteExpanded: false },
+                    { id: 306, name: '聖馬可廣場 & 鐘樓', category: 'sightseeing', startTime: '15:30', address: 'Piazza San Marco', note: '登頂鐘樓俯瞰威尼斯（需門票）。', hours: null, price: '約 €10', transportType: 'public', travelTime: '10m', isNoteExpanded: false },
+                    { id: 307, name: '總督宮與嘆息橋 (外觀)', category: 'sightseeing', startTime: '17:00', address: 'Palazzo Ducale', note: '總督宮內部可選，外觀與嘆息橋合影。', hours: null, price: null, transportType: 'walk', travelTime: '5m', isNoteExpanded: false },
+                    { id: 308, name: '晚餐：Ristorante Vecio Fritolin', category: 'food', startTime: '19:30', address: '威尼斯主島', note: '威尼斯特色海鮮餐館。', hours: null, price: null, transportType: 'walk', travelTime: '20m', isNoteExpanded: false },
+                ],
+                // Day 4: 12/17 (三) 威尼斯 → 佛羅倫斯
+                [
+                    { id: 401, name: '里亞托橋與市場', category: 'sightseeing', startTime: '09:00', address: 'Ponte di Rialto', note: '清晨市場較熱鬧，欣賞大運河。', hours: null, price: null, transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                    { id: 402, name: '貢多拉體驗 (自選)', category: 'other', startTime: '10:30', address: '大運河碼頭', note: '體驗傳統水上交通工具。', hours: null, price: '約 €80/船', transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 403, name: '午餐：墨魚麵/海鮮義大利麵', category: 'food', startTime: '12:30', address: '里亞托橋附近', note: '享用威尼斯特色料理。', hours: null, price: null, transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 404, name: '高鐵：威尼斯 S. Lucia → 佛羅倫斯 S. M. N.', category: 'transport', startTime: '14:00', address: '佛羅倫斯新聖母瑪利亞車站', note: '火車前往佛羅倫斯。', hours: null, price: '約 €40', transportType: 'public', travelTime: '2h10m', isNoteExpanded: false },
+                    { id: 405, name: '飯店 Check-in：Hotel Paris', category: 'accommodation', startTime: '16:30', address: 'Hotel Paris, Florence', note: '放下行李。', hours: null, price: null, transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 406, name: '聖母百花大教堂區探路', category: 'sightseeing', startTime: '17:30', address: 'Cattedrale di Santa Maria del Fiore', note: '確認隔天登頂與內部參觀路線。', hours: null, price: null, transportType: 'walk', travelTime: '15m', isNoteExpanded: false },
+                    { id: 407, name: '晚餐：佛羅倫斯牛排', category: 'food', startTime: '19:30', address: 'Trattoria Mario 或周邊餐廳', note: 'T-Bone 佛羅倫斯牛排！', hours: null, price: null, transportType: 'walk', travelTime: '20m', isNoteExpanded: false },
+                ],
+                // Day 5: 12/18 (四) 佛羅倫斯
+                [
+                    { id: 501, name: '聖母百花大教堂登頂', category: 'sightseeing', startTime: '08:15', address: 'Cattedrale di Santa Maria del Fiore', note: '使用套票，按預約時間登頂。', hours: null, price: '套票約 €30', transportType: 'walk', travelTime: '15m', isNoteExpanded: false },
+                    { id: 502, name: '聖若翰洗者洗禮堂', category: 'sightseeing', startTime: '10:00', address: 'Battistero di San Giovanni', note: '欣賞天堂之門與內部馬賽克。', hours: null, price: '套票已包含', transportType: 'walk', travelTime: '5m', isNoteExpanded: false },
+                    { id: 503, name: '午餐：中央市場', category: 'food', startTime: '12:30', address: 'Mercato Centrale', note: '義大利食物廣場，選擇多樣。', hours: null, price: null, transportType: 'walk', travelTime: '15m', isNoteExpanded: false },
+                    { id: 504, name: '烏菲茲美術館', category: 'sightseeing', startTime: '14:30', address: 'Galleria degli Uffizi', note: '需提前預約，看波提切利、達文西等大師作品。', hours: '08:15-18:30', price: '約 €25', transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                    { id: 505, name: '老橋 (Ponte Vecchio) 散步', category: 'sightseeing', startTime: '17:00', address: 'Ponte Vecchio', note: '橋上有許多珠寶店，適合傍晚散步。', hours: null, price: '免費', transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 506, name: '米開朗基羅廣場 (夕陽)', category: 'sightseeing', startTime: '18:30', address: 'Piazzale Michelangelo', note: '俯瞰佛羅倫斯全景的最佳地點，等待日落。', hours: '全天', price: '免費', transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                    { id: 507, name: '晚餐：廣場周邊或回市區', category: 'food', startTime: '20:00', address: '米開朗基羅廣場附近', note: '晚餐後返回飯店。', hours: null, price: null, transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                ],
+                // Day 6: 12/19 (五) 佛羅倫斯 → 羅馬
+                [
+                    { id: 601, name: '高鐵：佛羅倫斯 S. M. N. → 羅馬 Termini', category: 'transport', startTime: '08:00', address: '羅馬 Termini 車站', note: '搭乘早班火車前往羅馬。', hours: null, price: '約 €35', transportType: 'public', travelTime: '2h30m', isNoteExpanded: false },
+                    { id: 602, name: '羅馬 Termini 飯店 Check-in', category: 'accommodation', startTime: '10:45', address: 'Starhotels Metropole', note: '放下行李。', hours: null, price: null, transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 603, name: '羅馬競技場與古羅馬廣場', category: 'sightseeing', startTime: '12:00', address: 'Colosseo', note: '提前預約，含羅馬廣場與帕拉丁山聯票。', hours: '09:00–16:30', price: '約 €24', transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                    { id: 604, name: '午餐：競技場附近快餐', category: 'food', startTime: '14:30', address: 'Colosseo 附近', note: '簡餐，節省時間。', hours: null, price: null, transportType: 'walk', travelTime: '0m', isNoteExpanded: false },
+                    { id: 605, name: '聖依納爵堂 (透視天花板)', category: 'sightseeing', startTime: '16:00', address: 'Chiesa di Sant’Ignazio', note: '欣賞著名的透視壁畫，感受震撼。', hours: '15:00–19:00', price: '免費', transportType: 'public', travelTime: '15m', isNoteExpanded: false },
+                    { id: 606, name: '萬神殿 & 特雷維噴泉 (許願)', category: 'sightseeing', startTime: '17:30', address: 'Pantheon', note: '萬神殿需門票 (€5)，特雷維噴泉拍照許願。', hours: '09:00–19:00', price: '€5 (萬神殿)', transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 607, name: '晚餐：羅馬經典義大利麵', category: 'food', startTime: '20:00', address: '納沃納廣場附近', note: 'Cacio e Pepe 或 Carbonara。', hours: null, price: null, transportType: 'public', travelTime: '20m', isNoteExpanded: false },
+                ],
+                // Day 7: 12/20 (六) 羅馬/梵蒂岡
+                [
+                    { id: 701, name: '梵蒂岡博物館與西斯汀教堂', category: 'sightseeing', startTime: '07:30', address: 'Musei Vaticani', note: '提前預約，避開排隊人潮。', hours: '09:00–18:00', price: '約 €20', transportType: 'public', travelTime: '30m', isNoteExpanded: false },
+                    { id: 702, name: '聖彼得大教堂', category: 'sightseeing', startTime: '11:00', address: 'Basilica di San Pietro', note: '參觀大殿、地窖墓室（可選登頂）。', hours: '07:00–18:30', price: '免費/登頂 €10', transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 703, name: '午餐：梵蒂岡周邊', category: 'food', startTime: '13:00', address: '梵蒂岡附近餐廳', note: '簡餐。', hours: null, price: null, transportType: 'walk', travelTime: '0m', isNoteExpanded: false },
+                    { id: 704, name: '聖母大殿', category: 'sightseeing', startTime: '15:30', address: 'Basilica di Santa Maria Maggiore', note: '羅馬四大聖殿之一。', hours: '07:00–18:30', price: '免費', transportType: 'public', travelTime: '25m', isNoteExpanded: false },
+                    { id: 705, name: '西班牙廣場與西班牙階梯', category: 'sightseeing', startTime: '17:30', address: 'Piazza di Spagna', note: '逛街、拍照。', hours: null, price: '免費', transportType: 'public', travelTime: '15m', isNoteExpanded: false },
+                    { id: 706, name: '晚餐：羅馬豪華晚餐', category: 'food', startTime: '20:00', address: '西班牙廣場附近餐廳', note: '享受在羅馬的最後一晚。', hours: null, price: null, transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                ],
+                // Day 8: 12/21 (日) 羅馬/返程
+                [
+                    { id: 801, name: '早餐與伴手禮採買', category: 'food', startTime: '09:00', address: 'Termini 車站附近', note: '在市區進行最後的購物與採買。', hours: null, price: null, transportType: 'walk', travelTime: '10m', isNoteExpanded: false },
+                    { id: 802, name: '退房並前往機場', category: 'accommodation', startTime: '12:00', address: '羅馬菲烏米奇諾機場 (FCO)', note: '搭乘火車或計程車前往機場。', hours: null, price: '約 €15', transportType: 'public', travelTime: '1h', isNoteExpanded: false },
+                    { id: 803, name: '機場報到與午餐', category: 'flight', startTime: '13:00', address: '羅馬菲烏米奇諾機場 (FCO)', note: '預計 15:00 起飛。', hours: null, price: null, transportType: 'walk', travelTime: '0m', isNoteExpanded: false },
+                    { id: 804, name: '羅馬 FCO 起飛', category: 'flight', startTime: '15:00', address: 'TPE 台北 (經轉機)', note: '搭乘班機返家。', hours: null, price: null, transportType: 'flight', travelTime: '14h', isNoteExpanded: false },
+                ],
+            ]);
+
+            // 義大利冬季氣溫 (12月中旬) 及每日匯率（模擬浮動）
+            const weatherData = ref([
+                { condition: 'cloudy', temp: '8/3', feel: '5', exchangeRate: 35.15 }, // 米蘭 (12/14)
+                { condition: 'rain', temp: '7/2', feel: '4', exchangeRate: 34.90 },    // 米蘭 (12/15)
+                { condition: 'fog', temp: '6/1', feel: '3', exchangeRate: 35.22 },     // 米蘭→威尼斯 (12/16)
+                { condition: 'rain', temp: '10/5', feel: '7', exchangeRate: 35.05 },   // 威尼斯→佛羅倫斯 (12/17)
+                { condition: 'sunny', temp: '11/6', feel: '9', exchangeRate: 35.30 },  // 佛羅倫斯 (12/18)
+                { condition: 'cloudy', temp: '13/7', feel: '11', exchangeRate: 35.18 },// 佛羅倫斯→羅馬 (12/19)
+                { condition: 'sunny', temp: '14/8', feel: '12', exchangeRate: 35.45 }, // 羅馬/梵蒂岡 (12/20)
+                { condition: 'sunny', temp: '15/9', feel: '13', exchangeRate: 35.25 }, // 羅馬/返程 (12/21)
+            ]);
+            
+            // 每日穿搭紀錄 (新增 image 屬性)
+            const outfitData = ref([
+                { theme: '旅行舒適風', items: '寬鬆棉麻襯衫、針織背心、運動休閒鞋', note: '長途飛行，以舒適為主，備用輕薄外套。', image: null }, 
+                { theme: '米蘭時尚街拍', items: '黑色羊毛大衣、高領毛衣、皮褲、高跟短靴', note: '米蘭大教堂拍照用，要保暖。', image: null },
+                { theme: '威尼斯浪漫水都', items: '風衣、防水鞋、赤陶色圍巾', note: '可能下雨或有霧，保暖和防水是重點。', image: null },
+                { theme: '佛羅倫斯文藝復興', items: '駝色長款大衣、貝雷帽、百褶裙', note: '登頂百花大教堂，行動要方便。', image: null },
+                { theme: '米開朗基羅夕陽', items: '羽絨背心、牛仔褲、登山靴', note: '傍晚山頂風大，需加強保暖。', image: null },
+                { theme: '羅馬古著探險家', items: '深棕色夾克、厚實T恤、切爾西靴', note: '競技場有很多階梯，穿著舒適，顏色要匹配古蹟的土色。', image: null },
+                { theme: '梵蒂岡莊嚴風', items: '過膝連衣裙、深色外套、圍巾', note: '進入教堂需遮蓋肩膀和膝蓋。', image: null },
+                { theme: '返程簡約風', items: '舒服的休閒服，壓縮襪', note: '長途飛行，一切從簡。', image: null },
+            ]);
+            
+            // 購物清單 (未變更)
+            const shoppingList = ref([
+                { name: 'Aperol Spritz 材料', image: 'https://placehold.co/100/F0F3BD/005e8a?text=Aperol' },
+                { name: '義大利真皮皮件', image: 'https://placehold.co/100/A0A0A0/ffffff?text=Leather' },
+            ]);
+
+            // 花費紀錄 (未變更)
+            const expenses = ref([
+                { name: '機票費用 (TWD)', amount: 1500, category: 'flight', date: '2025-09-01', payment: 'card' },
+                { name: '米蘭中央車站巴士', amount: 10, category: 'transport', date: '2025-12-14', payment: 'cash' },
+                { name: '羅馬競技場門票', amount: 24, category: 'ticket', date: '2025-12-19', payment: 'card' },
+                { name: '佛羅倫斯牛排晚餐', amount: 80, category: 'food', date: '2025-12-18', payment: 'cash' },
+            ]);
+
+            // --- 狀態控制 ---
+            const selectedDateIndex = ref(0);
+            const showShoppingModal = ref(false);
+            const showExpenseModal = ref(false);
+            const showItineraryModal = ref(false);
+            const isEditMode = ref(false); 
+            
+            // 新增/編輯行程狀態
+            const newItinerary = ref({
+                id: null, name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'public', travelTime: '', isNoteExpanded: false
+            });
+            // 新增購物狀態
+            const newShoppingItem = ref({
+                name: '', image: null
+            });
+            // 新增花費狀態
+            const newExpense = ref({
+                name: '', amount: null, category: 'food', date: new Date().toISOString().substring(0, 10), payment: 'cash'
+            });
+
+            // AI 狀態 (未變更)
+            const translateInput = ref('');
+            const translationOutput = ref('');
+            const translationError = ref('');
+            const isTranslating = ref(false);
+            const isRecommendationLoading = ref({}); // { index: boolean }
+            const recommendationOutput = ref({}); // { index: { text: string, sources: [] } }
+            const qnaInput = ref('');
+            const qnaOutput = ref({ text: '', sources: [] });
+            const qnaError = ref('');
+            const isQNALoading = ref(false);
+            
+            // 貨幣轉換 (初始值為歐元)
+            const currencyInput = ref(100);
+            const currencyResult = ref(0);
+            
+            // --- Computed Properties ---
+            
+            const currentItinerary = computed(() => {
+                if (!itineraryData.value[selectedDateIndex.value]) {
+                    itineraryData.value[selectedDateIndex.value] = [];
+                }
+                return itineraryData.value[selectedDateIndex.value];
+            });
+
+            const currentOutfit = computed(() => {
+                // 確保 outfitData 存在
+                if (!outfitData.value[selectedDateIndex.value]) {
+                    // 如果數據丟失，提供默認空值，包含新的 image 屬性
+                    outfitData.value[selectedDateIndex.value] = { theme: '', items: '', note: '', image: null };
+                }
+                return outfitData.value[selectedDateIndex.value];
+            });
+
+            const totalExpensesEUR = computed(() => {
+                return expenses.value.reduce((sum, exp) => {
+                    // 這裡簡單地將所有 expense.amount 視為 EUR
+                    return sum + exp.amount;
+                }, 0);
+            });
+
+            const totalExpensesTWD = computed(() => {
+                // 這裡使用基準匯率進行轉換
+                return Math.round(totalExpensesEUR.value * EXCHANGE_RATE);
+            });
+            
+            // --- 穿搭儲存功能 ---
+            const saveOutfit = () => {
+                // 由於 currentOutfit 是 computed 且雙向綁定到表單，直接修改其底層數組即可
+                if (currentOutfit.value.theme.trim() || currentOutfit.value.items.trim() || currentOutfit.value.note.trim() || currentOutfit.value.image) {
+                    console.log(`Day ${selectedDateIndex.value + 1} 穿搭已儲存。`);
+                } else {
+                    console.warn(`Day ${selectedDateIndex.value + 1} 穿搭為空，但已儲存。`);
+                }
+            };
+            
+            // --- 圖片上傳處理 (新增) ---
+            const handleOutfitImageUpload = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        // 設定當前選定日期下的 outfit image
+                        outfitData.value[selectedDateIndex.value].image = e.target.result; 
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            // --- Utility Functions (未變更) ---
+            
+            const formatNumber = (num) => {
+                if (num === 0 || num === null || num === undefined) return '0';
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            };
+            
+            // 簡單 Markdown 轉 HTML (支援換行、粗體)
+            const formatMarkdown = (text) => {
+                if (!text) return '';
+                // 粗體
+                let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                // 列表 (用於 AI 輸出)
+                html = html.replace(/^- (.*)$/gm, '<li><i class="fa-solid fa-circle-dot text-ai-pink text-[8px] mr-2"></i> $1</li>').replace(/<ul>/g, '').replace(/<\/ul>/g, '');
+                 // 換行
+                html = html.replace(/\n/g, '<br>');
+                return html;
+            };
+
+            // 取得顏色/圖示/描述
+            const getCategoryColor = (category) => CATEGORY_MAP[category]?.color || CATEGORY_MAP.other.color;
+            const getCategoryIcon = (category) => CATEGORY_MAP[category]?.icon || CATEGORY_MAP.other.icon;
+            const getCategoryLabel = (category) => CATEGORY_LABEL_MAP[category] || '其他';
+            const getWeatherIcon = (condition) => {
+                const map = {
+                    snow: 'fa-solid fa-snowflake',
+                    sunny: 'fa-solid fa-sun',
+                    cloudy: 'fa-solid fa-cloud',
+                    rain: 'fa-solid fa-cloud-showers-heavy',
+                    fog: 'fa-solid fa-smog',
+                };
+                return map[condition] || 'fa-solid fa-cloud-question';
+            };
+            const getWeatherDescription = (condition) => {
+                const map = {
+                    snow: '降雪',
+                    sunny: '晴朗',
+                    cloudy: '多雲/陰天',
+                    rain: '降雨',
+                    fog: '霧/陰天'
+                };
+                return map[condition] || '天氣資訊未定';
+            };
+            const getTransportIcon = (type) => {
+                const map = {
+                    walk: 'fa-solid fa-person-walking',
+                    car: 'fa-solid fa-car-side',
+                    bus: 'fa-solid fa-bus-simple',
+                    public: 'fa-solid fa-train-subway',
+                    flight: 'fa-solid fa-plane',
+                    other: 'fa-solid fa-arrow-right-long'
+                };
+                // 義大利主要靠公共交通或步行
+                return map[type] || 'fa-solid fa-arrow-right-long';
+            };
+
+            // 地圖功能 (原樣保留)
+            const openMap = (query) => {
+                if (query) {
+                    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+                    window.open(url, '_blank');
+                }
+            };
+
+            const openMapDirections = (startItem, endItem) => {
+                const origin = startItem.address || startItem.name;
+                const destination = endItem.address || endItem.name;
+                
+                if (origin && destination) {
+                    // 預設為公共交通，除非明確是自駕 (car)
+                    const travelMode = (endItem.transportType === 'car') ? 'driving' : 
+                                       (endItem.transportType === 'public') ? 'transit' : 
+                                       'walking';
+                    const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=${travelMode}`;
+                    window.open(url, '_blank');
+                } else {
+                    console.error('移動兩點間至少需要一個地點名稱或地址。');
+                }
+            };
+            
+            // --- 匯率計算 (原樣保留) ---
+            const calculateCurrency = () => {
+                // 歐元轉台幣
+                currencyResult.value = Math.round(currencyInput.value * EXCHANGE_RATE_EUR);
+            };
+
+            // --- 模態窗及按鈕處理 (原樣保留) ---
+
+            // 浮動按鈕點擊處理
+            const handleAddClick = () => {
+                if (currentTab.value === 'itinerary') {
+                    resetItineraryForm();
+                    showItineraryModal.value = true;
+                } else if (currentTab.value === 'shopping') {
+                    resetShoppingForm();
+                    showShoppingModal.value = true;
+                } else if (currentTab.value === 'expenses') {
+                    resetExpenseForm();
+                    showExpenseModal.value = true;
+                }
+            };
+            
+            // --- 行程管理 (原樣保留) ---
+            const resetItineraryForm = () => {
+                isEditMode.value = false;
+                newItinerary.value = {
+                    id: Date.now(), name: '', category: 'sightseeing', startTime: '', hours: '', address: '', price: '', note: '', transportType: 'public', travelTime: '', isNoteExpanded: false
+                };
+            };
+
+            const editItem = (item) => {
+                isEditMode.value = true;
+                newItinerary.value = JSON.parse(JSON.stringify(item)); 
+                showItineraryModal.value = true;
+            };
+
+            const saveItineraryItem = () => {
+                if (!newItinerary.value.name) {
+                    console.error('行程名稱不能為空');
+                    return;
+                }
+                
+                if (isEditMode.value) {
+                    const index = currentItinerary.value.findIndex(item => item.id === newItinerary.value.id);
+                    if (index !== -1) {
+                        currentItinerary.value[index] = { ...newItinerary.value };
+                    }
+                } else {
+                    const newItem = { ...newItinerary.value };
+                    newItem.id = Date.now();
+                    itineraryData.value[selectedDateIndex.value].push(newItem);
+                }
+                
+                itineraryData.value[selectedDateIndex.value] = [...currentItinerary.value];
+                
+                showItineraryModal.value = false;
+                isEditMode.value = false;
+            };
+            
+            // 刪除行程項目功能
+            const removeItineraryItem = (id) => {
+                console.warn('行程項目已刪除。');
+                const currentList = itineraryData.value[selectedDateIndex.value];
+                const index = currentList.findIndex(item => item.id === id);
+                
+                if (index !== -1) {
+                    currentList.splice(index, 1);
+                    itineraryData.value[selectedDateIndex.value] = [...currentList];
+                    showItineraryModal.value = false;
+                    isEditMode.value = false;
+                }
+            };
+            
+            // 行程上下移動 (原樣保留)
+            const moveItinerary = (id, direction) => {
+                const currentList = currentItinerary.value;
+                const index = currentList.findIndex(item => item.id === id);
+                if (index === -1) return;
+                const newIndex = index + direction;
+                if (newIndex >= 0 && newIndex < currentList.length) {
+                    const item = currentList.splice(index, 1)[0];
+                    currentList.splice(newIndex, 0, item);
+                    itineraryData.value[selectedDateIndex.value] = [...currentList];
+                }
+            };
+
+            const moveItineraryUp = (id) => moveItinerary(id, -1);
+            const moveItineraryDown = (id) => moveItinerary(id, 1);
+
+
+            // --- 購物清單管理 (原樣保留) ---
+            const resetShoppingForm = () => {
+                newShoppingItem.value = { name: '', image: null };
+            };
+            
+            const handleImageUpload = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        newShoppingItem.value.image = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const addShoppingItem = () => {
+                if (newShoppingItem.value.name.trim() === '') {
+                    console.error('商品名稱不能為空！');
+                    return;
+                }
+                shoppingList.value.push({ ...newShoppingItem.value });
+                showShoppingModal.value = false;
+                resetShoppingForm();
+            };
+
+            const removeShoppingItem = (index) => {
+                shoppingList.value.splice(index, 1);
+            };
+
+            // --- 花費管理 (原樣保留) ---
+            const resetExpenseForm = () => {
+                newExpense.value = { name: '', amount: null, category: 'food', date: new Date().toISOString().substring(0, 10), payment: 'cash' };
+            };
+
+            const addExpense = () => {
+                if (newExpense.value.name.trim() === '' || newExpense.value.amount === null || newExpense.value.amount <= 0) {
+                    console.error('請輸入有效名稱和金額！');
+                    return;
+                }
+                expenses.value.push({ ...newExpense.value });
+                expenses.value.sort((a, b) => new Date(b.date) - new Date(a.date)); 
+                showExpenseModal.value = false;
+                resetExpenseForm();
+            };
+
+            const removeExpense = (index) => {
+                expenses.value.splice(index, 1);
+            };
+
+
+            // --- Gemini API Call Utility (Private) --- (未變更)
+            const callGeminiApi = async (systemPrompt, userQuery, useGrounding = true) => {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    tools: useGrounding ? [{ "google_search": {} }] : undefined, 
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                };
+
+                let response = null;
+                let attempt = 0;
+                const maxRetries = 5;
+
+                while (attempt < maxRetries) {
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            break; 
+                        } else if (response.status === 429 && attempt < maxRetries - 1) {
+                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            attempt++;
+                        } else {
+                            const errorData = await response.json();
+                            throw new Error(`API Error: ${response.status} - ${errorData.error?.message || response.statusText}`);
+                        }
+                    } catch (error) {
+                        if (attempt === maxRetries - 1) {
+                             throw new Error(`Failed to fetch content after ${maxRetries} attempts: ${error.message}`);
+                        }
+                        attempt++; 
+                    }
+                }
+                
+                if (!response || !response.ok) {
+                    throw new Error("API call failed and could not be recovered.");
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (!candidate || !candidate.content?.parts?.[0]?.text) {
+                    throw new Error("API response was invalid or contained no generated text.");
+                }
+
+                const text = candidate.content.parts[0].text;
+                let sources = [];
+                const groundingMetadata = candidate.groundingMetadata;
+                
+                if (useGrounding && groundingMetadata && groundingMetadata.groundingAttributions) {
+                    sources = groundingMetadata.groundingAttributions
+                        .map(attribution => ({
+                            uri: attribution.web?.uri,
+                            title: attribution.web?.title,
+                        }))
+                        .filter(source => source.uri && source.title);
+                }
+
+                return { text, sources };
+            };
+
+            // --- Gemini Feature 1: Quick Translation (義大利文) --- (未變更)
+            
+            const translatePhrase = async () => {
+                const phrase = translateInput.value.trim();
+                translationError.value = '';
+                translationOutput.value = '';
+
+                if (!phrase) {
+                    translationError.value = '請輸入要翻譯的詞句。';
+                    return;
+                }
+
+                isTranslating.value = true;
+
+                const systemPrompt = "你是一位專門的義大利文翻譯機器人。你的任務是將用戶輸入的中文翻譯成義大利文，或將義大利文翻譯成中文。請提供清晰、自然的翻譯結果，並同時提供義大利文的羅馬拼音（發音指南）。你只需要輸出翻譯結果，不要有任何額外的說明或對話。";
+
+                const userQuery = `請翻譯這句話，並提供義大利文的羅馬拼音（發音指南）："${phrase}"`;
+
+                try {
+                    // Use non-grounded call for faster translation
+                    const { text } = await callGeminiApi(systemPrompt, userQuery, false); 
+                    translationOutput.value = text;
+                    translationError.value = '';
+
+                } catch (error) {
+                    translationOutput.value = '';
+                    translationError.value = `翻譯失敗。錯誤: ${error.message}`;
+                } finally {
+                    isTranslating.value = false;
+                }
+            };
+
+            // --- Gemini Feature 2: Recommendation Generator (行程建議) --- (未變更)
+
+            const getRecommendation = async (dayIndex) => {
+                const day = dates.value[dayIndex];
+                const itinerary = itineraryData.value[dayIndex];
+                const city = itinerary[0].address.split('(')[1]?.replace(')', '').trim() || '羅馬'; // 從第一個行程地址獲取城市
+                const plannedActivities = itinerary.map(i => `${i.startTime}: ${i.name}`).join('; ');
+
+                if (isRecommendationLoading.value[dayIndex]) return;
+
+                isRecommendationLoading.value = { ...isRecommendationLoading.value, [dayIndex]: true };
+                recommendationOutput.value = { ...recommendationOutput.value, [dayIndex]: { text: 'AI 正在根據您的行程查找最佳建議...', sources: [] } };
+                
+                // 滾動到卡片底部，顯示讀取狀態
+                const recommendBtn = document.getElementById(`recommendBtn-${dayIndex}`);
+                if (recommendBtn) {
+                     recommendBtn.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }
+                
+                const systemPrompt = `你是一位義大利旅遊專家。請根據用戶提供的城市和當日行程，為他們推薦一個晚餐地點或一個符合當日行程主題的額外活動。
+規則：
+1. 必須使用繁體中文。
+2. 推薦內容必須使用 Google Search 進行驗證，確保資訊是最新且準確的。
+3. 輸出格式必須是清晰的 Markdown 列表，包含名稱、地址/地點、特色描述和推薦原因。
+4. 如果是餐廳，請強調該餐廳的特色菜或氛圍。
+5. 輸出內容不要包含任何前言或結語，直接從推薦內容開始。`;
+
+                const userQuery = `請在 ${day.date} (城市: ${city}) 的行程結束後，為我推薦一個今晚的晚餐地點，或是一個輕鬆的額外活動。
+今日預定活動：${plannedActivities}
+請使用最新資訊並確保推薦符合當地的特色和氛圍。`;
+
+                try {
+                    const { text, sources } = await callGeminiApi(systemPrompt, userQuery);
+                    
+                    recommendationOutput.value = { ...recommendationOutput.value, [dayIndex]: { text: text, sources: sources } };
+
+                } catch (error) {
+                    recommendationOutput.value = { ...recommendationOutput.value, [dayIndex]: { text: `無法獲取推薦。錯誤: ${error.message}`, sources: [] } };
+
+                } finally {
+                    isRecommendationLoading.value = { ...isRecommendationLoading.value, [dayIndex]: false };
+                }
+            };
+            
+            // --- Gemini Feature 3: QNA (旅遊問答) --- (未變更)
+            
+            const searchQNA = async () => {
+                const query = qnaInput.value.trim();
+                qnaError.value = '';
+                qnaOutput.value = { text: '', sources: [] };
+
+                if (!query) {
+                    qnaError.value = '請輸入您的問題。';
+                    return;
+                }
+                
+                isQNALoading.value = true;
+                qnaOutput.value = { text: 'AI 正在搜尋並生成答案...', sources: [] };
+
+                const systemPrompt = "你是一位義大利旅遊知識專家。請根據最新的網路資訊，以繁體中文簡潔、專業地回答用戶關於義大利旅遊的任何問題。務必使用 Google Search 進行資訊驗證。";
+                
+                try {
+                    const { text, sources } = await callGeminiApi(systemPrompt, query, true); 
+                    
+                    qnaOutput.value = { text: text, sources: sources };
+                    qnaError.value = '';
+
+                } catch (error) {
+                    qnaOutput.value = { text: '', sources: [] };
+                    qnaError.value = `查找失敗。錯誤: ${error.message}`;
+                } finally {
+                    isQNALoading.value = false;
+                }
+            };
+
+
+            // 載入時執行
+            onMounted(() => {
+                calculateCurrency();
+                // 初始載入時將 expense 排序 (最新到最舊)
+                expenses.value.sort((a, b) => new Date(b.date) - new Date(a.date));
+            });
+
+            return {
+                currentTab, dates, selectedDateIndex, itineraryData, currentItinerary,
+                hotels, shoppingList, expenses, totalExpensesEUR, totalExpensesTWD,
+                weatherData, currencyInput, currencyResult, calculateCurrency, EXCHANGE_RATE_EUR,
+                getCategoryColor, getCategoryIcon, getCategoryLabel, getWeatherIcon, getTransportIcon, getWeatherDescription,
+                showShoppingModal, showExpenseModal, showItineraryModal, isEditMode,
+                newShoppingItem, newExpense, newItinerary,
+                handleAddClick, handleImageUpload, addShoppingItem, removeShoppingItem,
+                addExpense, removeExpense, editItem, saveItineraryItem,
+                removeItineraryItem, 
+                moveItineraryUp, moveItineraryDown, 
+                openMap, openMapDirections, formatNumber,
+                
+                // Outfit Feature
+                outfitData, currentOutfit, saveOutfit, handleOutfitImageUpload,
+                
+                // AI Features
+                translatePhrase, isTranslating, translationOutput, translateInput, translationError,
+                getRecommendation, isRecommendationLoading, recommendationOutput, formatMarkdown,
+                searchQNA, qnaInput, qnaOutput, qnaError, isQNALoading
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
