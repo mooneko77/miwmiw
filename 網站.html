@@ -6,76 +6,76 @@
     <title>韓國旅遊消費回饋計算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+<body class="bg-slate-50 min-h-screen p-4 md:p-8 text-slate-800">
     <div class="max-w-4xl mx-auto space-y-6">
         
         <!-- 標題與匯率設定 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">🇰🇷 韓國旅遊消費回饋計算器</h1>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h1 class="text-2xl font-bold text-slate-800 mb-4">🇰🇷 韓國旅遊消費回饋計算器</h1>
             <div class="flex items-center space-x-2">
-                <label class="text-sm font-medium text-gray-600">目前設定匯率：1 韓元 = </label>
+                <label class="text-sm font-medium text-slate-600">目前設定匯率：1 韓元 = </label>
                 <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-20 p-1 border rounded text-center font-bold text-blue-600" onchange="calculateAll()">
-                <span class="text-sm text-gray-600">台幣</span>
+                <span class="text-sm text-slate-600">台幣</span>
             </div>
         </div>
 
         <!-- 方案餘額與進度條 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- icash Pay -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <!-- 全支付 -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded">15% 免手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 2,000</span>
+                    <span class="px-2 py-1 bg-sky-100 text-sky-700 text-xs font-bold rounded">將來銀行加碼/免手續費</span>
+                    <span class="text-xs text-slate-500">每月上限 TWD 1,000</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">icash Pay</h3>
-                <p class="text-2xl font-black text-purple-600 my-2" id="icashRemaining">TWD 2,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="icashBar" class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-slate-800">全支付 (將來)</h3>
+                <p class="text-2xl font-black text-sky-600 my-2" id="pxpayRemaining">TWD 1,000</p>
+                <div class="w-full bg-slate-200 rounded-full h-2">
+                    <div id="pxpayBar" class="bg-sky-500 h-2 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="icashEarned">已賺: 0 點</p>
+                <p class="text-xs text-slate-500 mt-2 text-right" id="pxpayEarned">已賺回饋: 0 點</p>
             </div>
 
-            <!-- 悠遊付 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <!-- icash Pay -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs font-bold rounded">10.5% 免手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 5,714</span>
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded">15% 免手續費</span>
+                    <span class="text-xs text-slate-500">上限 TWD 2,000</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">悠遊付</h3>
-                <p class="text-2xl font-black text-cyan-600 my-2" id="easyRemaining">TWD 5,714</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="easyBar" class="bg-cyan-500 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-slate-800">icash Pay</h3>
+                <p class="text-2xl font-black text-purple-600 my-2" id="icashRemaining">TWD 2,000</p>
+                <div class="w-full bg-slate-200 rounded-full h-2">
+                    <div id="icashBar" class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="easyEarned">已賺: 0 元</p>
+                <p class="text-xs text-slate-500 mt-2 text-right" id="icashEarned">已賺: 0 點</p>
             </div>
 
             <!-- 富邦好市多卡 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
                 <div class="flex justify-between items-start mb-2">
                     <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded">5% 扣1.5%手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 15,000</span>
+                    <span class="text-xs text-slate-500">加碼上限 TWD 15,000</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">富邦好市多卡</h3>
+                <h3 class="font-bold text-lg text-slate-800">富邦好市多卡</h3>
                 <p class="text-2xl font-black text-amber-600 my-2" id="fubonRemaining">TWD 15,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="w-full bg-slate-200 rounded-full h-2">
                     <div id="fubonBar" class="bg-amber-500 h-2 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="fubonEarned">淨賺: 0 元</p>
+                <p class="text-xs text-slate-500 mt-2 text-right" id="fubonEarned">淨賺: 0 元</p>
             </div>
         </div>
 
         <!-- 新增消費紀錄 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-4">➕ 新增消費紀錄</h2>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">➕ 新增消費紀錄</h2>
             <form id="expenseForm" onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">消費名稱</label>
-                    <input type="text" id="expName" placeholder="例如：吃飯、醫美" required class="w-full p-2 border rounded-xl">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">消費名稱</label>
+                    <input type="text" id="expName" placeholder="例如：吃飯、大創、醫美" required class="w-full p-2 border rounded-xl">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">幣別與金額</label>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">幣別與金額</label>
                     <div class="flex">
-                        <select id="expCurrency" class="p-2 border rounded-l-xl bg-gray-50">
+                        <select id="expCurrency" class="p-2 border rounded-l-xl bg-slate-50">
                             <option value="KRW">KRW 韓元</option>
                             <option value="TWD">TWD 台幣</option>
                         </select>
@@ -83,10 +83,10 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">支付方式</label>
-                    <select id="expMethod" class="w-full p-2 border rounded-xl bg-gray-50">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">支付方式</label>
+                    <select id="expMethod" class="w-full p-2 border rounded-xl bg-slate-50">
+                        <option value="pxpay">全支付 (將來銀行)</option>
                         <option value="icash">icash Pay (15%)</option>
-                        <option value="easy">悠遊付 (10.5%)</option>
                         <option value="fubon">富邦好市多卡 (5%)</option>
                     </select>
                 </div>
@@ -95,15 +95,15 @@
         </div>
 
         <!-- 消費歷史紀錄列表 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-gray-800">📜 消費明細</h2>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-slate-800">📜 消費明細</h2>
                 <button onclick="clearAll()" class="text-xs text-red-500 hover:underline">全部清空</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-sm font-medium border-b border-gray-100">
+                        <tr class="bg-slate-50 text-slate-600 text-sm font-medium border-b border-slate-100">
                             <th class="p-4">項目</th>
                             <th class="p-4">原始金額</th>
                             <th class="p-4">折合台幣</th>
@@ -112,7 +112,7 @@
                             <th class="p-4 text-center">操作</th>
                         </tr>
                     </thead>
-                    <tbody id="expenseList" class="divide-y divide-gray-100 text-gray-700">
+                    <tbody id="expenseList" class="divide-y divide-slate-100 text-slate-700">
                         <!-- 動態插入 -->
                     </tbody>
                 </table>
@@ -122,7 +122,7 @@
     </div>
 
     <script>
-        // 初始化預設資料（包含你的三筆花費）
+        // 初始化預設包含你的三筆花費
         let expenses = [
             { id: 1, name: '吃飯', amount: 20000, currency: 'KRW', method: 'icash' },
             { id: 2, name: '購物', amount: 35000, currency: 'KRW', method: 'icash' },
@@ -156,32 +156,31 @@
         function calculateAll() {
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
             
-            // 各方案上限定義
-            const caps = { icash: 2000, easy: 5714, fubon: 15000 };
-            const spending = { icash: 0, easy: 0, fubon: 0 };
-            const rewards = { icash: 0, easy: 0, fubon: 0 };
+            // 基礎參數
+            const caps = { pxpay: 1000, icash: 2000, fubon: 15000 };
+            const spending = { pxpay: 0, icash: 0, fubon: 0 };
+            const rewards = { pxpay: 0, icash: 0, fubon: 0 };
 
             const listBody = document.getElementById('expenseList');
             listBody.innerHTML = '';
 
             expenses.forEach(exp => {
-                // 換算台幣
                 const twdAmount = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
                 spending[exp.method] += twdAmount;
 
-                // 計算單筆回饋
                 let rewardText = '';
-                if (exp.method === 'icash') {
-                    // 超過額度不給回饋
+                if (exp.method === 'pxpay') {
+                    // 全支付：基本+將來銀行加碼在2k內約8.5%
+                    const isWithinWeekly = (spending.pxpay <= 2000);
+                    const rateUsed = isWithinWeekly ? 0.085 : 0.035;
+                    const reward = Math.round(twdAmount * rateUsed);
+                    rewards.pxpay += reward;
+                    rewardText = `+${reward} 全點`;
+                } else if (exp.method === 'icash') {
                     const validAmount = Math.max(0, twdAmount - Math.max(0, spending.icash - caps.icash));
                     const reward = Math.round(validAmount * 0.15);
                     rewards.icash += reward;
                     rewardText = `+${reward} OPENPOINT`;
-                } else if (exp.method === 'easy') {
-                    const validAmount = Math.max(0, twdAmount - Math.max(0, spending.easy - caps.easy));
-                    const reward = Math.round(validAmount * 0.105);
-                    rewards.easy += reward;
-                    rewardText = `+${reward} 元`;
                 } else if (exp.method === 'fubon') {
                     const validAmount = Math.max(0, twdAmount - Math.max(0, spending.fubon - caps.fubon));
                     const base = Math.round(twdAmount * 0.01);
@@ -189,38 +188,37 @@
                     const fee = Math.round(twdAmount * 0.015);
                     const net = (base + bonus) - fee;
                     rewards.fubon += net;
-                    rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
+                    rewardText = `${net >= 0 ? '+' : ''}${net} 元 (含手續費)`;
                 }
 
-                // 渲染明細表格
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50 transition text-sm';
+                tr.className = 'hover:bg-slate-50 transition text-sm';
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-gray-900">${exp.name}</td>
+                    <td class="p-4 font-medium text-slate-900">${exp.name}</td>
                     <td class="p-4">${exp.amount.toLocaleString()} ${exp.currency}</td>
-                    <td class="p-4 font-semibold text-gray-600">NT$ ${twdAmount.toLocaleString()}</td>
+                    <td class="p-4 font-semibold text-slate-600">NT$ ${twdAmount.toLocaleString()}</td>
                     <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${
-                        exp.method === 'icash' ? 'bg-purple-100 text-purple-700' : 
-                        exp.method === 'easy' ? 'bg-cyan-100 text-cyan-700' : 'bg-amber-100 text-amber-700'
-                    }">${exp.method === 'icash' ? 'icash Pay' : exp.method === 'easy' ? '悠遊付' : '富邦好市多'}</span></td>
+                        exp.method === 'pxpay' ? 'bg-sky-100 text-sky-700' : 
+                        exp.method === 'icash' ? 'bg-purple-100 text-purple-700' : 'bg-amber-100 text-amber-700'
+                    }">${exp.method === 'pxpay' ? '全支付' : exp.method === 'icash' ? 'icash Pay' : '富邦好市多'}</span></td>
                     <td class="p-4 font-medium text-green-600">${rewardText}</td>
                     <td class="p-4 text-center"><button onclick="deleteExpense(${exp.id})" class="text-red-400 hover:text-red-600">刪除</button></td>
                 `;
                 listBody.appendChild(tr);
             });
 
-            // 更新上方的餘額顯示與進度條
+            // 更新剩餘額度進度條
+            // 全支付
+            const pxpayLeft = Math.max(0, 12000 - spending.pxpay); // 粗估極限消費額
+            document.getElementById('pxpayRemaining').innerText = `已刷 TWD ${spending.pxpay.toLocaleString()}`;
+            document.getElementById('pxpayBar').style.width = `${Math.min(100, (spending.pxpay / 12000) * 100)}%`;
+            document.getElementById('pxpayEarned').innerText = `已賺: ${rewards.pxpay} 點`;
+
             // icash
             const icashLeft = Math.max(0, caps.icash - spending.icash);
             document.getElementById('icashRemaining').innerText = `TWD ${icashLeft.toLocaleString()}`;
             document.getElementById('icashBar').style.width = `${(icashLeft / caps.icash) * 100}%`;
             document.getElementById('icashEarned').innerText = `已賺: ${rewards.icash} 點`;
-
-            // 悠遊付
-            const easyLeft = Math.max(0, caps.easy - spending.easy);
-            document.getElementById('easyRemaining').innerText = `TWD ${easyLeft.toLocaleString()}`;
-            document.getElementById('easyBar').style.width = `${(easyLeft / caps.easy) * 100}%`;
-            document.getElementById('easyEarned').innerText = `已賺: ${rewards.easy} 元`;
 
             // 富邦好市多
             const fubonLeft = Math.max(0, caps.fubon - spending.fubon);
@@ -229,7 +227,6 @@
             document.getElementById('fubonEarned').innerText = `累積淨賺: ${rewards.fubon} 元`;
         }
 
-        // 網頁開啟時第一次計算
         calculateAll();
     </script>
 </body>
