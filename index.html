@@ -5,150 +5,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>韓國旅遊消費回饋計算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自訂微調漸層背景 */
+        body {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background-attachment: fixed;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8 font-sans">
     <div class="max-w-6xl mx-auto space-y-6">
         
         <!-- 標題與匯率設定 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">🇰🇷 韓國旅遊消費回饋計算器</h1>
+        <div class="bg-white/95 backdrop-blur-sm p-6 rounded-3xl shadow-lg border border-purple-100">
+            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500 mb-4">🇰🇷 韓國旅遊消費回饋計算器</h1>
             <div class="flex items-center space-x-2">
-                <label class="text-sm font-medium text-gray-600">目前設定匯率：1 韓元 = </label>
-                <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-20 p-1 border rounded text-center font-bold text-blue-600" onchange="calculateAll()">
-                <span class="text-sm text-gray-600">台幣</span>
+                <label class="text-sm font-medium text-gray-700">目前設定匯率：1 韓元 = </label>
+                <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-24 p-1.5 border-2 border-purple-200 rounded-lg text-center font-bold text-purple-600 focus:outline-none focus:border-purple-400" onchange="calculateAll()">
+                <span class="text-sm text-gray-700">台幣</span>
             </div>
         </div>
 
         <!-- 方案餘額與進度條 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <!-- icash Pay -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <div class="bg-white/95 p-5 rounded-3xl shadow-sm border border-purple-50 hover:shadow-md transition-shadow">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded">15% 免手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 2,000</span>
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-lg">15% 免手續費</span>
+                    <span class="text-xs text-gray-500 font-medium">上限 TWD 2,000</span>
                 </div>
                 <h3 class="font-bold text-lg text-gray-800">icash Pay</h3>
                 <p class="text-2xl font-black text-purple-600 my-2" id="icashRemaining">TWD 2,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="icashBar" class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div id="icashBar" class="bg-gradient-to-r from-purple-400 to-purple-600 h-2.5 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="icashEarned">已賺: 0 點</p>
+                <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="icashEarned">已賺: 0 點</p>
             </div>
 
             <!-- 悠遊付 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <div class="bg-white/95 p-5 rounded-3xl shadow-sm border border-purple-50 hover:shadow-md transition-shadow">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs font-bold rounded">10.5% 免手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 5,714</span>
+                    <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs font-bold rounded-lg">10.5% 免手續費</span>
+                    <span class="text-xs text-gray-500 font-medium">上限 TWD 5,714</span>
                 </div>
                 <h3 class="font-bold text-lg text-gray-800">悠遊付</h3>
                 <p class="text-2xl font-black text-cyan-600 my-2" id="easyRemaining">TWD 5,714</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="easyBar" class="bg-cyan-500 h-2 rounded-full" style="width: 100%"></div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div id="easyBar" class="bg-gradient-to-r from-cyan-400 to-cyan-600 h-2.5 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="easyEarned">已賺: 0 元</p>
+                <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="easyEarned">已賺: 0 元</p>
             </div>
 
             <!-- 全支付 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <div class="bg-white/95 p-5 rounded-3xl shadow-sm border border-purple-50 hover:shadow-md transition-shadow">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-pink-100 text-pink-700 text-xs font-bold rounded">15% 免手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 10,000</span>
+                    <span class="px-2 py-1 bg-pink-100 text-pink-700 text-xs font-bold rounded-lg">15% 免手續費</span>
+                    <span class="text-xs text-gray-500 font-medium">上限 TWD 10,000</span>
                 </div>
                 <h3 class="font-bold text-lg text-gray-800">全支付</h3>
-                <p class="text-2xl font-black text-pink-600 my-2" id="pxpayRemaining">TWD 10,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="pxpayBar" class="bg-pink-500 h-2 rounded-full" style="width: 100%"></div>
+                <p class="text-2xl font-black text-pink-500 my-2" id="pxpayRemaining">TWD 10,000</p>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div id="pxpayBar" class="bg-gradient-to-r from-pink-400 to-pink-500 h-2.5 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="pxpayEarned">已賺: 0 點</p>
+                <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="pxpayEarned">已賺: 0 點</p>
             </div>
 
-            <!-- 台新Pay+ -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded">10% 免手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 3,000</span>
+            <!-- 今日方案1: pay著刷 (原台新Pay+) -->
+            <div class="bg-white/95 p-5 rounded-3xl shadow-md border-2 border-rose-200 hover:shadow-lg transition-shadow relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">HOT</div>
+                <div class="flex justify-between items-start mb-2 mt-1">
+                    <span class="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-lg">10% 免手續費</span>
+                    <span class="text-xs text-gray-500 font-medium">回饋無上限</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">台新Pay+</h3>
-                <p class="text-2xl font-black text-rose-600 my-2" id="taishinpayRemaining">TWD 3,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="taishinpayBar" class="bg-rose-500 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                    pay著刷 <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">今日方案1</span>
+                </h3>
+                <p class="text-2xl font-black text-rose-500 my-2" id="taishinpayRemaining">無上限</p>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div id="taishinpayBar" class="bg-gradient-to-r from-rose-400 to-rose-500 h-2.5 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="taishinpayEarned">已賺: 0 點</p>
+                <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="taishinpayEarned">已賺: 0 點</p>
             </div>
 
-            <!-- 台新銀行 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded">3.3% 扣1.5%手續費</span>
-                    <span class="text-xs text-gray-500">回饋無上限</span>
+            <!-- 今日方案2: 玩旅刷 (原台新銀行) -->
+            <div class="bg-white/95 p-5 rounded-3xl shadow-md border-2 border-red-200 hover:shadow-lg transition-shadow relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">HOT</div>
+                <div class="flex justify-between items-start mb-2 mt-1">
+                    <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-lg tracking-wide">3.3% - 1.5% = 1.8%</span>
+                    <span class="text-xs text-gray-500 font-medium">回饋無上限</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">台新銀行</h3>
-                <p class="text-2xl font-black text-red-600 my-2" id="taishinRemaining">無上限</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="taishinBar" class="bg-red-500 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                    玩旅刷 <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">今日方案2</span>
+                </h3>
+                <p class="text-2xl font-black text-red-500 my-2" id="taishinRemaining">無上限</p>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div id="taishinBar" class="bg-gradient-to-r from-red-400 to-red-500 h-2.5 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="taishinEarned">淨賺: 0 元</p>
+                <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="taishinEarned">淨賺: 0 元</p>
             </div>
 
             <!-- 富邦好市多卡 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <div class="bg-white/95 p-5 rounded-3xl shadow-sm border border-purple-50 hover:shadow-md transition-shadow">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded">5% 扣1.5%手續費</span>
-                    <span class="text-xs text-gray-500">上限 TWD 15,000</span>
+                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-lg tracking-wide">5% - 1.5% = 3.5%</span>
+                    <span class="text-xs text-gray-500 font-medium">加碼上限 TWD 15,000</span>
                 </div>
                 <h3 class="font-bold text-lg text-gray-800">富邦好市多卡</h3>
-                <p class="text-2xl font-black text-amber-600 my-2" id="fubonRemaining">TWD 15,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="fubonBar" class="bg-amber-500 h-2 rounded-full" style="width: 100%"></div>
+                <p class="text-2xl font-black text-amber-500 my-2" id="fubonRemaining">TWD 15,000</p>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div id="fubonBar" class="bg-gradient-to-r from-amber-400 to-amber-500 h-2.5 rounded-full" style="width: 100%"></div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="fubonEarned">淨賺: 0 元</p>
+                <p class="text-xs text-gray-500 mt-2 text-right font-medium" id="fubonEarned">淨賺: 0 元</p>
             </div>
         </div>
 
         <!-- 新增消費紀錄 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-4">➕ 新增消費紀錄</h2>
+        <div class="bg-white/95 p-6 rounded-3xl shadow-lg border border-purple-100">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="text-2xl">✨</span> 新增消費紀錄
+            </h2>
             <form id="expenseForm" onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">消費名稱</label>
-                    <input type="text" id="expName" placeholder="例如：吃飯、醫美" required class="w-full p-2 border rounded-xl">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">消費名稱</label>
+                    <input type="text" id="expName" placeholder="例如：吃飯、醫美" required class="w-full p-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-300 focus:outline-none transition">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">幣別與金額</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">幣別與金額</label>
                     <div class="flex">
-                        <select id="expCurrency" class="p-2 border rounded-l-xl bg-gray-50">
+                        <select id="expCurrency" class="p-2.5 border border-gray-200 border-r-0 rounded-l-xl bg-gray-50 focus:outline-none font-medium text-gray-600">
                             <option value="KRW">KRW 韓元</option>
                             <option value="TWD">TWD 台幣</option>
                         </select>
-                        <input type="number" id="expAmount" placeholder="金額" required class="w-full p-2 border rounded-r-xl">
+                        <input type="number" id="expAmount" placeholder="金額" required class="w-full p-2.5 border border-gray-200 rounded-r-xl focus:ring-2 focus:ring-purple-300 focus:outline-none transition">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">支付方式</label>
-                    <select id="expMethod" class="w-full p-2 border rounded-xl bg-gray-50">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">支付方式</label>
+                    <select id="expMethod" class="w-full p-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-300 transition font-medium text-gray-700">
+                        <option value="taishinpay">🔥今日方案1: pay著刷 (10%無上限)</option>
+                        <option value="taishin">🔥今日方案2: 玩旅刷 (1.8%無上限)</option>
                         <option value="icash">icash Pay (15%)</option>
                         <option value="easy">悠遊付 (10.5%)</option>
                         <option value="pxpay">全支付 (15%)</option>
-                        <option value="taishinpay">台新Pay+ (10%)</option>
-                        <option value="fubon">富邦好市多卡 (5%)</option>
-                        <option value="taishin">台新銀行 (3.3%無上限)</option>
+                        <option value="fubon">富邦好市多卡 (3.5%)</option>
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 text-white font-bold p-2 rounded-xl hover:bg-blue-700 transition">記一筆</button>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold p-3 rounded-xl hover:from-purple-600 hover:to-blue-600 shadow-md transform hover:-translate-y-0.5 transition-all">記一筆</button>
             </form>
         </div>
 
         <!-- 消費歷史紀錄列表 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-gray-800">📜 消費明細</h2>
-                <button onclick="clearAll()" class="text-xs text-red-500 hover:underline">全部清空</button>
+        <div class="bg-white/95 rounded-3xl shadow-lg border border-purple-100 overflow-hidden">
+            <div class="p-6 border-b border-purple-50 flex justify-between items-center bg-white">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <span class="text-2xl">📜</span> 消費明細
+                </h2>
+                <button onclick="clearAll()" class="text-sm font-medium text-red-400 hover:text-red-600 bg-red-50 px-3 py-1 rounded-lg transition">全部清空</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-sm font-medium border-b border-gray-100">
+                        <tr class="bg-purple-50/50 text-purple-800 text-sm font-bold border-b border-purple-100">
                             <th class="p-4">項目</th>
                             <th class="p-4">原始金額</th>
                             <th class="p-4">折合台幣</th>
@@ -157,7 +174,7 @@
                             <th class="p-4 text-center">操作</th>
                         </tr>
                     </thead>
-                    <tbody id="expenseList" class="divide-y divide-gray-100 text-gray-700">
+                    <tbody id="expenseList" class="divide-y divide-purple-50 text-gray-700 bg-white">
                         <!-- 動態插入 -->
                     </tbody>
                 </table>
@@ -171,7 +188,7 @@
         let expenses = [
             { id: 1, name: '吃飯', amount: 20000, currency: 'KRW', method: 'icash' },
             { id: 2, name: '購物', amount: 35000, currency: 'KRW', method: 'pxpay' },
-            { id: 3, name: '醫美', amount: 800000, currency: 'KRW', method: 'taishin' }
+            { id: 3, name: '醫美', amount: 800000, currency: 'KRW', method: 'taishinpay' }
         ];
 
         function addExpense(e) {
@@ -201,8 +218,8 @@
         function calculateAll() {
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
             
-            // 各方案上限定義 (台新Pay+預設額度3000)
-            const caps = { icash: 2000, easy: 5714, pxpay: 10000, taishinpay: 3000, fubon: 15000, taishin: Infinity };
+            // 各方案上限定義 (台新兩個方案改為無上限)
+            const caps = { icash: 2000, easy: 5714, pxpay: 10000, taishinpay: Infinity, fubon: 15000, taishin: Infinity };
             const spending = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
             const rewards = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
 
@@ -232,12 +249,12 @@
                     rewards.pxpay += reward;
                     rewardText = `+${reward} 全點`;
                 } else if (exp.method === 'taishinpay') {
-                    // 台新Pay+設定：10%免手續費
-                    const validAmount = Math.max(0, twdAmount - Math.max(0, spending.taishinpay - caps.taishinpay));
-                    const reward = Math.round(validAmount * 0.10);
+                    // 今日方案1: pay著刷 (無上限, 10%免手續費)
+                    const reward = Math.round(twdAmount * 0.10);
                     rewards.taishinpay += reward;
                     rewardText = `+${reward} 台新Point`;
                 } else if (exp.method === 'fubon') {
+                    // 富邦: 1%基本 + 4%加碼(有上限) - 1.5%手續費
                     const validAmount = Math.max(0, twdAmount - Math.max(0, spending.fubon - caps.fubon));
                     const base = Math.round(twdAmount * 0.01);
                     const bonus = Math.round(validAmount * 0.04);
@@ -246,6 +263,7 @@
                     rewards.fubon += net;
                     rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
                 } else if (exp.method === 'taishin') {
+                    // 今日方案2: 玩旅刷 (無上限, 3.3% - 1.5% = 1.8%)
                     const base = Math.round(twdAmount * 0.033);
                     const fee = Math.round(twdAmount * 0.015);
                     const net = base - fee;
@@ -253,26 +271,26 @@
                     rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
                 }
 
-                // 渲染標籤顏色對應
+                // 渲染標籤顏色與文字
                 let badgeClass = '';
                 let methodText = '';
                 if(exp.method === 'icash') { badgeClass = 'bg-purple-100 text-purple-700'; methodText = 'icash Pay'; }
                 else if(exp.method === 'easy') { badgeClass = 'bg-cyan-100 text-cyan-700'; methodText = '悠遊付'; }
                 else if(exp.method === 'pxpay') { badgeClass = 'bg-pink-100 text-pink-700'; methodText = '全支付'; }
-                else if(exp.method === 'taishinpay') { badgeClass = 'bg-rose-100 text-rose-700'; methodText = '台新Pay+'; }
+                else if(exp.method === 'taishinpay') { badgeClass = 'bg-rose-500 text-white shadow-sm'; methodText = '今日方案1: pay著刷'; }
                 else if(exp.method === 'fubon') { badgeClass = 'bg-amber-100 text-amber-700'; methodText = '富邦好市多'; }
-                else if(exp.method === 'taishin') { badgeClass = 'bg-red-100 text-red-700'; methodText = '台新銀行'; }
+                else if(exp.method === 'taishin') { badgeClass = 'bg-red-500 text-white shadow-sm'; methodText = '今日方案2: 玩旅刷'; }
 
                 // 渲染明細表格
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50 transition text-sm';
+                tr.className = 'hover:bg-purple-50/50 transition text-sm';
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-gray-900">${exp.name}</td>
-                    <td class="p-4">${exp.amount.toLocaleString()} ${exp.currency}</td>
-                    <td class="p-4 font-semibold text-gray-600">NT$ ${twdAmount.toLocaleString()}</td>
-                    <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${badgeClass}">${methodText}</span></td>
-                    <td class="p-4 font-medium text-green-600">${rewardText}</td>
-                    <td class="p-4 text-center"><button onclick="deleteExpense(${exp.id})" class="text-red-400 hover:text-red-600">刪除</button></td>
+                    <td class="p-4 font-bold text-gray-800">${exp.name}</td>
+                    <td class="p-4 text-gray-600 font-medium">${exp.amount.toLocaleString()} ${exp.currency}</td>
+                    <td class="p-4 font-extrabold text-gray-700">NT$ ${twdAmount.toLocaleString()}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide ${badgeClass}">${methodText}</span></td>
+                    <td class="p-4 font-bold text-green-500">${rewardText}</td>
+                    <td class="p-4 text-center"><button onclick="deleteExpense(${exp.id})" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition">刪除</button></td>
                 `;
                 listBody.appendChild(tr);
             });
@@ -296,13 +314,12 @@
             document.getElementById('pxpayBar').style.width = `${(pxpayLeft / caps.pxpay) * 100}%`;
             document.getElementById('pxpayEarned').innerText = `已賺: ${rewards.pxpay} 點`;
 
-            // 台新Pay+
-            const taishinpayLeft = Math.max(0, caps.taishinpay - spending.taishinpay);
-            document.getElementById('taishinpayRemaining').innerText = `TWD ${taishinpayLeft.toLocaleString()}`;
-            document.getElementById('taishinpayBar').style.width = `${(taishinpayLeft / caps.taishinpay) * 100}%`;
-            document.getElementById('taishinpayEarned').innerText = `已賺: ${rewards.taishinpay} 點`;
+            // 今日方案1: pay著刷 (無上限)
+            document.getElementById('taishinpayRemaining').innerText = `無上限`;
+            document.getElementById('taishinpayBar').style.width = `100%`;
+            document.getElementById('taishinpayEarned').innerText = `累積淨賺: ${rewards.taishinpay} 點`;
 
-            // 台新銀行
+            // 今日方案2: 玩旅刷 (無上限)
             document.getElementById('taishinRemaining').innerText = `無上限`;
             document.getElementById('taishinBar').style.width = `100%`;
             document.getElementById('taishinEarned').innerText = `累積淨賺: ${rewards.taishin} 元`;
