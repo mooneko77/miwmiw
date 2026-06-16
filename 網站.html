@@ -1,652 +1,236 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>遠策財富管理有限公司 | Yuance Wealth Management</title>
-    
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>韓國旅遊消費回饋計算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- Google Fonts: Noto Serif TC for Classical Feel -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
-
-    <style>
-        /* 自定義金色漸層與古典風格 */
-        :root {
-            --color-gold-main: #D4AF37;
-            --color-gold-light: #F9E498;
-            --color-gold-dark: #AA771C;
-            --color-deep-red: #7A0C0C;
-            --color-dark-brown: #1B1B1B;
-            --font-serif: 'Noto Serif TC', serif;
-            --font-sans: 'Noto Sans TC', sans-serif;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            background-color: #f5f0e6; /* 米色底，仿畫布 */
-            color: var(--color-dark-brown);
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3, .classical-font {
-            font-family: var(--font-serif);
-        }
-
-        /* 華麗金色漸層文字/邊框 */
-        .text-gradient-gold {
-            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .bg-gradient-gold {
-            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-        }
-
-        .border-gradient-gold {
-            border: 2px solid;
-            border-image-source: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728);
-            border-image-slice: 1;
-        }
-
-        /* 隱藏滾動條但保持功能 */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* 卡片玻璃擬態與陰影 */
-        .card-shadow {
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Hover Effects for Desktop */
-        .hover-scale {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .hover-scale:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Loading Spinner */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--color-gold-main);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
 </head>
-<body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        // --- Firebase Configuration ---
-        const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-        const appId = window.__app_id || 'default-app';
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto space-y-6">
         
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        <!-- 標題與匯率設定 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">🇰🇷 韓國旅遊消費回饋計算器</h1>
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-600">目前設定匯率：1 韓元 = </label>
+                <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-20 p-1 border rounded text-center font-bold text-blue-600" onchange="calculateAll()">
+                <span class="text-sm text-gray-600">台幣</span>
+            </div>
+        </div>
+
+        <!-- 方案餘額與進度條 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- icash Pay -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded">15% 免手續費</span>
+                    <span class="text-xs text-gray-500">上限 TWD 2,000</span>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800">icash Pay</h3>
+                <p class="text-2xl font-black text-purple-600 my-2" id="icashRemaining">TWD 2,000</p>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="icashBar" class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 text-right" id="icashEarned">已賺: 0 點</p>
+            </div>
+
+            <!-- 悠遊付 -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs font-bold rounded">10.5% 免手續費</span>
+                    <span class="text-xs text-gray-500">上限 TWD 5,714</span>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800">悠遊付</h3>
+                <p class="text-2xl font-black text-cyan-600 my-2" id="easyRemaining">TWD 5,714</p>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="easyBar" class="bg-cyan-500 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 text-right" id="easyEarned">已賺: 0 元</p>
+            </div>
+
+            <!-- 富邦好市多卡 -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded">5% 扣1.5%手續費</span>
+                    <span class="text-xs text-gray-500">上限 TWD 15,000</span>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800">富邦好市多卡</h3>
+                <p class="text-2xl font-black text-amber-600 my-2" id="fubonRemaining">TWD 15,000</p>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="fubonBar" class="bg-amber-500 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 text-right" id="fubonEarned">淨賺: 0 元</p>
+            </div>
+        </div>
+
+        <!-- 新增消費紀錄 -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">➕ 新增消費紀錄</h2>
+            <form id="expenseForm" onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">消費名稱</label>
+                    <input type="text" id="expName" placeholder="例如：吃飯、醫美" required class="w-full p-2 border rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">幣別與金額</label>
+                    <div class="flex">
+                        <select id="expCurrency" class="p-2 border rounded-l-xl bg-gray-50">
+                            <option value="KRW">KRW 韓元</option>
+                            <option value="TWD">TWD 台幣</option>
+                        </select>
+                        <input type="number" id="expAmount" placeholder="金額" required class="w-full p-2 border rounded-r-xl">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">支付方式</label>
+                    <select id="expMethod" class="w-full p-2 border rounded-xl bg-gray-50">
+                        <option value="icash">icash Pay (15%)</option>
+                        <option value="easy">悠遊付 (10.5%)</option>
+                        <option value="fubon">富邦好市多卡 (5%)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold p-2 rounded-xl hover:bg-blue-700 transition">記一筆</button>
+            </form>
+        </div>
+
+        <!-- 消費歷史紀錄列表 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-800">📜 消費明細</h2>
+                <button onclick="clearAll()" class="text-xs text-red-500 hover:underline">全部清空</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-600 text-sm font-medium border-b border-gray-100">
+                            <th class="p-4">項目</th>
+                            <th class="p-4">原始金額</th>
+                            <th class="p-4">折合台幣</th>
+                            <th class="p-4">支付管道</th>
+                            <th class="p-4">估計淨回饋</th>
+                            <th class="p-4 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseList" class="divide-y divide-gray-100 text-gray-700">
+                        <!-- 動態插入 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 初始化預設資料（包含你的三筆花費）
+        let expenses = [
+            { id: 1, name: '吃飯', amount: 20000, currency: 'KRW', method: 'icash' },
+            { id: 2, name: '購物', amount: 35000, currency: 'KRW', method: 'icash' },
+            { id: 3, name: '醫美', amount: 800000, currency: 'KRW', method: 'fubon' }
+        ];
+
+        function addExpense(e) {
+            e.preventDefault();
+            const name = document.getElementById('expName').value;
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const currency = document.getElementById('expCurrency').value;
+            const method = document.getElementById('expMethod').value;
+
+            expenses.push({ id: Date.now(), name, amount, currency, method });
+            document.getElementById('expenseForm').reset();
+            calculateAll();
         }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
 
-        // --- INTERNAL ICON SYSTEM (Fix for CDN issues) ---
-        const CreateIcon = ({ path, size = 24, className = "" }) => (
-            <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width={size} 
-                height={size} 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className={className}
-            >
-                {path}
-            </svg>
-        );
+        function deleteExpense(id) {
+            expenses = expenses.filter(exp => exp.id !== id);
+            calculateAll();
+        }
 
-        // Icon Definitions (Lucide style)
-        const Home = (props) => <CreateIcon {...props} path={<><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>} />;
-        const Building2 = (props) => <CreateIcon {...props} path={<><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></>} />;
-        const ShieldCheck = (props) => <CreateIcon {...props} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></>} />;
-        const Star = (props) => <CreateIcon {...props} path={<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>} />;
-        const Newspaper = (props) => <CreateIcon {...props} path={<><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></>} />;
-        const Briefcase = (props) => <CreateIcon {...props} path={<><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></>} />;
-        const Users = (props) => <CreateIcon {...props} path={<><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>} />;
-        const Crown = (props) => <CreateIcon {...props} path={<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>} />;
-        const Medal = (props) => <CreateIcon {...props} path={<><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><circle cx="12" cy="19" r="5"/><path d="m8 17 8 4"/><path d="m8 21 8-4"/></>} />;
-        const Globe = (props) => <CreateIcon {...props} path={<><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></>} />;
-        const MapPin = (props) => <CreateIcon {...props} path={<><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></>} />;
-        const Trash2 = (props) => <CreateIcon {...props} path={<><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>} />;
-        const Menu = (props) => <CreateIcon {...props} path={<><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>} />;
-        
-        // --- Components ---
+        function clearAll() {
+            if(confirm('確定要清空所有紀錄嗎？')) {
+                expenses = [];
+                calculateAll();
+            }
+        }
 
-        // 1. Navigation Icon Item
-        const NavItem = ({ icon: Icon, label, active, onClick }) => (
-            <button 
-                onClick={onClick}
-                className={`flex flex-col items-center justify-center min-w-[72px] p-2 transition-all duration-300 hover:scale-110 ${active ? 'scale-110' : 'opacity-80 hover:opacity-100'}`}
-            >
-                <div className={`p-3 md:p-4 rounded-full mb-1 border-2 shadow-lg backdrop-blur-sm ${active ? 'bg-gradient-gold border-white text-yellow-900' : 'bg-black/40 border-yellow-500/50 text-yellow-200'}`}>
-                    <Icon size={20} className="md:w-6 md:h-6" />
-                </div>
-                <span className={`text-[10px] md:text-xs font-bold tracking-wide ${active ? 'text-white text-shadow-md' : 'text-yellow-100/80'}`}>
-                    {label}
-                </span>
-            </button>
-        );
-
-        // 2. Section Title
-        const SectionTitle = ({ title, subtitle }) => (
-            <div className="mb-8 text-center">
-                <h2 className="text-2xl md:text-3xl font-bold text-[#7A0C0C] classical-font mb-2 flex items-center justify-center gap-4">
-                    <span className="h-[1px] w-8 md:w-16 bg-yellow-600"></span>
-                    {title}
-                    <span className="h-[1px] w-8 md:w-16 bg-yellow-600"></span>
-                </h2>
-                {subtitle && <p className="text-xs md:text-sm text-gray-500 uppercase tracking-widest">{subtitle}</p>}
-            </div>
-        );
-
-        // 3. Card Component
-        const Card = ({ children, className = "" }) => (
-            <div className={`bg-white rounded-xl card-shadow overflow-hidden border border-yellow-100 hover-scale ${className}`}>
-                {children}
-            </div>
-        );
-
-        // --- Main Application ---
-        const App = () => {
-            const [activeTab, setActiveTab] = React.useState('home');
-            const [lang, setLang] = React.useState('zh-TW');
-            const [user, setUser] = React.useState(null);
-            const [isAdmin, setIsAdmin] = React.useState(false); // Toggle for demo
+        function calculateAll() {
+            const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
             
-            // Data States (Mock + Firestore)
-            const [news, setNews] = React.useState([]);
-            const [photos, setPhotos] = React.useState([]);
-            const [products, setProducts] = React.useState([]);
-            const [loading, setLoading] = React.useState(false);
+            // 各方案上限定義
+            const caps = { icash: 2000, easy: 5714, fubon: 15000 };
+            const spending = { icash: 0, easy: 0, fubon: 0 };
+            const rewards = { icash: 0, easy: 0, fubon: 0 };
 
-            // Auth Effect
-            React.useEffect(() => {
-                const initAuth = async () => {
-                   if (window.__initial_auth_token) {
-                       await auth.signInWithCustomToken(window.__initial_auth_token);
-                   } else {
-                       await auth.signInAnonymously();
-                   }
-                };
-                initAuth();
-                const unsubscribe = auth.onAuthStateChanged((u) => {
-                    setUser(u);
-                });
-                return () => unsubscribe();
-            }, []);
+            const listBody = document.getElementById('expenseList');
+            listBody.innerHTML = '';
 
-            // Data Fetching Effect (Real-time updates)
-            React.useEffect(() => {
-                if (!user) return;
-                
-                // Fetch News
-                const unsubNews = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('news')
-                    .orderBy('date', 'desc')
-                    .onSnapshot(snap => {
-                        const list = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                        if(list.length > 0) setNews(list);
-                        else {
-                            // Initial seed data if empty
-                            setNews([
-                                { id: '1', title: '遠策受邀參加2026亞洲金融論壇', date: '2026-01-15', type: 'event', image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=400' },
-                                { id: '2', title: '美聯儲最新利率決策分析', date: '2026-01-10', type: 'news', image: 'https://images.unsplash.com/photo-1611974765270-ca1258634369?auto=format&fit=crop&q=80&w=400' },
-                                { id: '3', title: '全球財富報告：亞洲市場崛起', date: '2026-01-08', type: 'news', image: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&q=80&w=400' },
-                                { id: '4', title: '家族辦公室稅務新規解析', date: '2026-01-05', type: 'news', image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400' }
-                            ]);
-                        }
-                    }, err => console.log(err));
+            expenses.forEach(exp => {
+                // 換算台幣
+                const twdAmount = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
+                spending[exp.method] += twdAmount;
 
-                 // Fetch Products
-                const unsubProds = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('products')
-                    .onSnapshot(snap => {
-                         const list = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                         if(list.length > 0) setProducts(list);
-                         else {
-                             setProducts([
-                                 { id: '1', name: '尊榮世代傳承信託', tag: '熱銷', desc: '專為高淨值家族設計的財富傳承方案。' },
-                                 { id: '2', name: '環球醫療金卡', tag: '推薦', desc: '全球頂級醫療資源對接，全額理賠。' },
-                                 { id: '3', name: '美金高利儲蓄計劃', tag: '精選', desc: '穩定增值，靈活提領，抗通膨首選。' }
-                             ]);
-                         }
-                    }, err => console.log(err));
-                
-                return () => { unsubNews(); unsubProds(); };
-            }, [user]);
-
-            // CRUD Operations
-            const addItem = async (collection, data) => {
-                if (!user) return;
-                try {
-                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection(collection).add(data);
-                } catch (e) { console.error(e); }
-            };
-
-            const deleteItem = async (collection, id) => {
-                if (!user) return;
-                try {
-                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection(collection).doc(id).delete();
-                } catch (e) { console.error(e); }
-            };
-
-            // Translation Map
-            const t = {
-                'zh-TW': {
-                    tabs: {
-                        home: '首頁', group: '集團簡介', agency: '保險代理', products: '熱銷產品', 
-                        news: '最新消息', family: '家族辦公室', partners: '合作夥伴', member: '會員專區', awards: '得獎紀錄'
-                    },
-                    sections: {
-                        events: '近期活動 & 新聞',
-                        rates: '世界匯率',
-                        gallery: '企業參訪',
-                        vision: '企業願景',
-                        partners: '合作夥伴',
-                        contact: '聯絡我們'
-                    }
+                // 計算單筆回饋
+                let rewardText = '';
+                if (exp.method === 'icash') {
+                    // 超過額度不給回饋
+                    const validAmount = Math.max(0, twdAmount - Math.max(0, spending.icash - caps.icash));
+                    const reward = Math.round(validAmount * 0.15);
+                    rewards.icash += reward;
+                    rewardText = `+${reward} OPENPOINT`;
+                } else if (exp.method === 'easy') {
+                    const validAmount = Math.max(0, twdAmount - Math.max(0, spending.easy - caps.easy));
+                    const reward = Math.round(validAmount * 0.105);
+                    rewards.easy += reward;
+                    rewardText = `+${reward} 元`;
+                } else if (exp.method === 'fubon') {
+                    const validAmount = Math.max(0, twdAmount - Math.max(0, spending.fubon - caps.fubon));
+                    const base = Math.round(twdAmount * 0.01);
+                    const bonus = Math.round(validAmount * 0.04);
+                    const fee = Math.round(twdAmount * 0.015);
+                    const net = (base + bonus) - fee;
+                    rewards.fubon += net;
+                    rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
                 }
-            }[lang];
 
-            // Render Content Based on Tab
-            const renderContent = () => {
-                switch(activeTab) {
-                    case 'home': return <HomeTab />;
-                    case 'group': return <GroupTab />;
-                    case 'agency': return <AgencyTab />;
-                    case 'products': return <ProductsTab />;
-                    case 'news': return <NewsTab />;
-                    case 'family': return <FamilyTab />;
-                    case 'partners': return <PartnersTab />;
-                    case 'awards': return <AwardsTab />;
-                    default: return <HomeTab />;
-                }
-            };
+                // 渲染明細表格
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition text-sm';
+                tr.innerHTML = `
+                    <td class="p-4 font-medium text-gray-900">${exp.name}</td>
+                    <td class="p-4">${exp.amount.toLocaleString()} ${exp.currency}</td>
+                    <td class="p-4 font-semibold text-gray-600">NT$ ${twdAmount.toLocaleString()}</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${
+                        exp.method === 'icash' ? 'bg-purple-100 text-purple-700' : 
+                        exp.method === 'easy' ? 'bg-cyan-100 text-cyan-700' : 'bg-amber-100 text-amber-700'
+                    }">${exp.method === 'icash' ? 'icash Pay' : exp.method === 'easy' ? '悠遊付' : '富邦好市多'}</span></td>
+                    <td class="p-4 font-medium text-green-600">${rewardText}</td>
+                    <td class="p-4 text-center"><button onclick="deleteExpense(${exp.id})" class="text-red-400 hover:text-red-600">刪除</button></td>
+                `;
+                listBody.appendChild(tr);
+            });
 
-            // --- Sub-Components for Tabs ---
+            // 更新上方的餘額顯示與進度條
+            // icash
+            const icashLeft = Math.max(0, caps.icash - spending.icash);
+            document.getElementById('icashRemaining').innerText = `TWD ${icashLeft.toLocaleString()}`;
+            document.getElementById('icashBar').style.width = `${(icashLeft / caps.icash) * 100}%`;
+            document.getElementById('icashEarned').innerText = `已賺: ${rewards.icash} 點`;
 
-            const HomeTab = () => (
-                <div className="space-y-12 animate-fade-in pb-20 max-w-7xl mx-auto">
-                    
-                    {/* Rate Widget (Mock) */}
-                    <section className="px-4 md:px-8">
-                        <Card className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 max-w-4xl mx-auto">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-[#7A0C0C] flex items-center gap-2 text-lg">
-                                    <Globe size={24} /> {t.sections.rates}
-                                </h3>
-                                <span className="text-xs text-gray-500">來源: 台灣銀行 (延遲)</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 md:gap-8 text-center">
-                                <div className="p-4 bg-white rounded shadow-sm hover:shadow-md transition">
-                                    <div className="text-gray-500 text-sm mb-1">USD/TWD</div>
-                                    <div className="font-bold text-green-700 text-xl md:text-2xl">32.45</div>
-                                </div>
-                                <div className="p-4 bg-white rounded shadow-sm hover:shadow-md transition">
-                                    <div className="text-gray-500 text-sm mb-1">HKD/TWD</div>
-                                    <div className="font-bold text-green-700 text-xl md:text-2xl">4.15</div>
-                                </div>
-                                <div className="p-4 bg-white rounded shadow-sm hover:shadow-md transition">
-                                    <div className="text-gray-500 text-sm mb-1">CNY/TWD</div>
-                                    <div className="font-bold text-red-700 text-xl md:text-2xl">4.48</div>
-                                </div>
-                            </div>
-                        </Card>
-                    </section>
+            // 悠遊付
+            const easyLeft = Math.max(0, caps.easy - spending.easy);
+            document.getElementById('easyRemaining').innerText = `TWD ${easyLeft.toLocaleString()}`;
+            document.getElementById('easyBar').style.width = `${(easyLeft / caps.easy) * 100}%`;
+            document.getElementById('easyEarned').innerText = `已賺: ${rewards.easy} 元`;
 
-                    {/* News & Events */}
-                    <section className="px-4 md:px-8">
-                        <SectionTitle title="焦點新聞" subtitle="NEWS & EVENTS" />
-                        
-                        {isAdmin && (
-                            <div className="mb-6 p-4 border-2 border-dashed border-yellow-400 rounded bg-yellow-50 max-w-2xl mx-auto">
-                                <p className="text-xs font-bold mb-2">管理員新增新聞:</p>
-                                <form onSubmit={(e) => {
-                                    e.preventDefault();
-                                    const title = e.target.title.value;
-                                    if(title) addItem('news', { title, date: new Date().toISOString().split('T')[0], type: 'news', image: 'https://placehold.co/400x200?text=News' });
-                                    e.target.reset();
-                                }} className="flex gap-2">
-                                    <input name="title" placeholder="輸入標題..." className="flex-1 p-2 text-sm border rounded" />
-                                    <button type="submit" className="bg-[#7A0C0C] text-white px-3 py-1 rounded text-xs">新增</button>
-                                </form>
-                            </div>
-                        )}
+            // 富邦好市多
+            const fubonLeft = Math.max(0, caps.fubon - spending.fubon);
+            document.getElementById('fubonRemaining').innerText = `TWD ${fubonLeft.toLocaleString()}`;
+            document.getElementById('fubonBar').style.width = `${(fubonLeft / caps.fubon) * 100}%`;
+            document.getElementById('fubonEarned').innerText = `累積淨賺: ${rewards.fubon} 元`;
+        }
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {news.map((item) => (
-                                <Card key={item.id} className="flex flex-row md:flex-col h-24 md:h-auto relative group">
-                                    <div className="w-24 md:w-full md:h-48 bg-gray-200 shrink-0 overflow-hidden">
-                                        <img src={item.image} alt="news" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" onError={(e) => e.target.src='https://placehold.co/100x100?text=Yuance'} />
-                                    </div>
-                                    <div className="p-3 md:p-5 flex flex-col justify-center flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className={`text-[10px] md:text-xs px-2 py-0.5 rounded text-white ${item.type === 'event' ? 'bg-[#7A0C0C]' : 'bg-yellow-600'}`}>
-                                                {item.type === 'event' ? '活動' : '新聞'}
-                                            </span>
-                                            <span className="text-[10px] md:text-xs text-gray-400">{item.date}</span>
-                                        </div>
-                                        <h4 className="text-sm md:text-base font-bold line-clamp-2 md:line-clamp-3 leading-snug group-hover:text-[#7A0C0C] transition">{item.title}</h4>
-                                    </div>
-                                    {isAdmin && (
-                                        <button onClick={() => deleteItem('news', item.id)} className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
-                                            <Trash2 size={12} />
-                                        </button>
-                                    )}
-                                </Card>
-                            ))}
-                        </div>
-                    </section>
-
-                     {/* Visit Gallery */}
-                     <section className="px-4 md:px-8">
-                        <SectionTitle title="參訪紀實" subtitle="CORPORATE VISITS" />
-                        {/* Mobile: Scroll, Desktop: Grid */}
-                        <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-4 pb-4 md:pb-0 hide-scrollbar snap-x">
-                            {[1,2,3].map(i => (
-                                <div key={i} className="snap-center shrink-0 w-64 md:w-auto h-40 md:h-56 rounded-xl overflow-hidden relative card-shadow group">
-                                    <img src={`https://images.unsplash.com/photo-1541535650810-10d26f5c2ab3?auto=format&fit=crop&q=80&w=600&text=Visit+${i}`} className="w-full h-full object-cover group-hover:scale-110 transition duration-700" />
-                                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4">
-                                        <p className="text-white text-base font-bold">企業參訪 - 第 {i} 站</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                </div>
-            );
-
-            const GroupTab = () => (
-                <div className="px-4 md:px-8 space-y-8 pb-20 max-w-5xl mx-auto">
-                     <div className="relative p-8 md:p-12 bg-[#1B1B1B] rounded-xl text-yellow-100 text-center border border-yellow-600/30 shadow-2xl">
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-[#7A0C0C] p-3 rounded-full border-4 border-[#1B1B1B]">
-                            <Crown size={32} className="text-yellow-400" />
-                        </div>
-                        <h3 className="mt-4 text-2xl md:text-3xl font-bold classical-font text-gradient-gold mb-4">企業願景</h3>
-                        <p className="text-base md:text-lg opacity-80 leading-relaxed max-w-2xl mx-auto">
-                            立足香港，放眼全球。<br className="md:hidden" />成為亞洲最值得信賴的家族財富管家。
-                        </p>
-                    </div>
-
-                    <div className="space-y-6">
-                        <SectionTitle title="服務項目" />
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                            {['家族信託', '稅務規劃', '全球置產', '保險規劃'].map((s, i) => (
-                                <div key={i} className="bg-white p-6 rounded-lg text-center shadow-sm border-b-2 border-yellow-500 hover:bg-yellow-50 transition duration-300">
-                                    <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3 text-[#7A0C0C]">
-                                        <Star size={24} />
-                                    </div>
-                                    <h4 className="font-bold text-gray-800 text-lg">{s}</h4>
-                                    <p className="text-xs text-gray-500 mt-2">專業團隊 專屬服務</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const AgencyTab = () => (
-                <div className="px-4 md:px-8 pb-20 max-w-6xl mx-auto">
-                    <SectionTitle title="保險代理" subtitle="OUR PARTNERS" />
-                    <p className="text-center text-sm md:text-base text-gray-500 mb-8 max-w-2xl mx-auto">嚴選全球頂尖 16 家合作夥伴，為您提供最優質的保障，涵蓋人壽、醫療、儲蓄等多重領域。</p>
-                    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-                        {Array.from({length: 16}).map((_, i) => (
-                            <div key={i} className="aspect-square bg-white rounded-lg flex items-center justify-center p-4 shadow-sm border border-gray-100 hover:border-yellow-400 hover:shadow-md transition cursor-pointer group">
-                                <div className="text-xs text-center text-gray-400 font-bold group-hover:text-[#7A0C0C]">LOGO<br/>{i+1}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
-
-            const ProductsTab = () => (
-                <div className="px-4 md:px-8 space-y-6 pb-20 max-w-6xl mx-auto">
-                     <SectionTitle title="熱銷產品" subtitle="HOT PRODUCTS" />
-                     {isAdmin && (
-                        <div className="mb-6 p-4 bg-yellow-50 rounded border-dashed border-2 border-yellow-300 max-w-2xl mx-auto">
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                const name = e.target.name.value;
-                                if(name) addItem('products', { name, tag: 'NEW', desc: '新上市產品' });
-                                e.target.reset();
-                            }} className="flex gap-2">
-                                <input name="name" placeholder="產品名稱" className="flex-1 p-2 rounded text-sm border" />
-                                <button className="bg-[#7A0C0C] text-white px-3 rounded text-xs">Add</button>
-                            </form>
-                        </div>
-                     )}
-                     
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                        {products.map(p => (
-                             <Card key={p.id} className="p-0 flex flex-col relative h-full">
-                                 <div className="h-2 bg-gradient-gold w-full"></div>
-                                 <div className="p-6 flex flex-col flex-1">
-                                     <div className="absolute top-5 right-5 bg-red-600 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md">
-                                         {p.tag}
-                                     </div>
-                                     <h3 className="text-xl font-bold text-[#1B1B1B] mb-3 pr-8">{p.name}</h3>
-                                     <p className="text-sm text-gray-600 mb-6 flex-1">{p.desc}</p>
-                                     <button className="w-full py-2.5 border-2 border-[#7A0C0C] text-[#7A0C0C] rounded hover:bg-[#7A0C0C] hover:text-white transition text-sm font-bold tracking-wide">
-                                         了解更多
-                                     </button>
-                                 </div>
-                                 {isAdmin && <button onClick={() => deleteItem('products', p.id)} className="absolute bottom-2 right-2 text-red-500"><Trash2 size={16}/></button>}
-                             </Card>
-                         ))}
-                     </div>
-                </div>
-            );
-
-            const PartnersTab = () => (
-                <div className="px-4 md:px-8 pb-20 text-center max-w-2xl mx-auto">
-                    <SectionTitle title="策略夥伴" />
-                    <Card className="p-10 flex flex-col items-center justify-center gap-6">
-                        <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 font-bold text-2xl border-4 border-yellow-500 shadow-inner">
-                            巨石
-                        </div>
-                        <h3 className="text-2xl font-bold">巨石人壽保險公司</h3>
-                        <p className="text-base text-gray-500">Titan Stone Life Insurance</p>
-                        <a href="#" className="mt-6 px-8 py-3 bg-[#7A0C0C] text-white rounded-full shadow-lg text-base font-bold flex items-center gap-2 hover:bg-red-800 transition transform hover:scale-105">
-                            前往官網 <Globe size={18}/>
-                        </a>
-                    </Card>
-                </div>
-            );
-
-            const FamilyTab = () => (
-                <div className="px-4 md:px-8 pb-20 max-w-4xl mx-auto">
-                     <SectionTitle title="家族辦公室" subtitle="FAMILY OFFICE" />
-                     <div className="bg-white p-6 md:p-10 rounded-xl shadow-sm border border-yellow-100">
-                        <div className="flex flex-col md:flex-row gap-8 items-center">
-                             <div className="w-full md:w-1/2">
-                                <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=600" className="rounded-xl shadow-lg w-full" />
-                             </div>
-                             <div className="w-full md:w-1/2 space-y-4 text-gray-700 leading-relaxed text-justify">
-                                 <p className="text-lg font-serif">
-                                     遠策家族辦公室致力於為超高淨值家族提供全方位的財富管理與傳承服務。我們不僅關注財富的增值，更重視家族精神的延續。
-                                 </p>
-                                 
-                                 <h4 className="font-bold text-[#7A0C0C] text-lg mt-4 border-b border-yellow-200 pb-2">核心服務：</h4>
-                                 <ul className="grid grid-cols-1 gap-2 text-sm md:text-base">
-                                     <li className="flex items-center gap-2"><Star size={16} className="text-yellow-500"/> 家族憲章制定</li>
-                                     <li className="flex items-center gap-2"><Star size={16} className="text-yellow-500"/> 全球資產配置</li>
-                                     <li className="flex items-center gap-2"><Star size={16} className="text-yellow-500"/> 下一代教育與接班規劃</li>
-                                     <li className="flex items-center gap-2"><Star size={16} className="text-yellow-500"/> 慈善事業管理</li>
-                                 </ul>
-                             </div>
-                        </div>
-                     </div>
-                </div>
-            );
-
-            const NewsTab = () => (
-                <div className="px-4 md:px-8 pb-20 max-w-4xl mx-auto">
-                     <SectionTitle title="最新消息" />
-                     <div className="bg-white rounded-xl shadow-sm p-2">
-                        {news.filter(n => n.type === 'news').map(item => (
-                            <div key={item.id} className="p-4 border-b border-gray-100 last:border-0 hover:bg-yellow-50 transition cursor-pointer flex gap-4 items-start">
-                                <div className="text-sm font-bold text-yellow-700 bg-yellow-100 px-2 py-1 rounded shrink-0">{item.date}</div>
-                                <h3 className="font-bold text-gray-800 text-lg">{item.title}</h3>
-                            </div>
-                        ))}
-                     </div>
-                </div>
-            );
-
-             const AwardsTab = () => (
-                <div className="px-4 md:px-8 pb-20 max-w-3xl mx-auto">
-                    <SectionTitle title="榮耀時刻" subtitle="AWARDS" />
-                    <div className="relative border-l-4 border-yellow-300 ml-4 space-y-12 pl-8 my-10">
-                        {[
-                            {year: '2025', title: '亞洲最佳財富管理機構', org: 'Asia Finance'},
-                            {year: '2024', title: '傑出家族辦公室服務獎', org: 'Wealth Hub'},
-                            {year: '2023', title: '香港年度卓越企業', org: 'HK Business'}
-                        ].map((a, i) => (
-                            <div key={i} className="relative group">
-                                <div className="absolute -left-[45px] top-1 bg-[#7A0C0C] w-6 h-6 rounded-full border-4 border-white shadow group-hover:scale-125 transition"></div>
-                                <span className="text-yellow-700 font-bold text-base block mb-1">{a.year}</span>
-                                <h4 className="font-bold text-2xl text-gray-900 mb-1">{a.title}</h4>
-                                <p className="text-sm text-gray-500">{a.org}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
-
-            // --- Layout Rendering ---
-
-            return (
-                <div className="min-h-screen relative flex flex-col bg-[#f5f0e6]">
-                    
-                    {/* 1. Header & Banner */}
-                    <header className="relative w-full h-[320px] md:h-[400px] shrink-0">
-                        {/* Golden Lion Banner */}
-                        <div className="absolute inset-0 bg-black">
-                            <img 
-                                src="https://images.unsplash.com/photo-1563203369-26f2e4a5ccf7?auto=format&fit=crop&q=80&w=1600" 
-                                alt="Golden Lion" 
-                                className="w-full h-full object-cover opacity-90 object-top"
-                            />
-                            {/* Overlay Gradient for Text Readability */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/40"></div>
-                        </div>
-
-                        <div className="max-w-7xl mx-auto relative h-full px-6">
-                            {/* Company Info Top Left */}
-                            <div className="absolute top-6 left-6 md:left-8 z-20">
-                                <h1 className="text-2xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 classical-font drop-shadow-md tracking-wider">
-                                    遠策財富
-                                </h1>
-                                <p className="text-[10px] md:text-xs text-yellow-100 tracking-[0.2em] mt-1 md:mt-2 opacity-80">YUANCE WEALTH MANAGEMENT</p>
-                            </div>
-
-                            {/* Navigation (Responsive: Scroll on Mobile, Flex on Desktop) */}
-                            <div className="absolute top-24 md:top-8 left-0 md:left-auto md:right-8 w-full md:w-auto z-30 overflow-x-auto hide-scrollbar px-4 pb-4 md:px-0 md:overflow-visible">
-                                <div className="flex gap-3 md:gap-4 w-max mx-auto md:mx-0">
-                                    <NavItem icon={Home} label={t.tabs.home} active={activeTab==='home'} onClick={()=>setActiveTab('home')} />
-                                    <NavItem icon={Users} label={t.tabs.group} active={activeTab==='group'} onClick={()=>setActiveTab('group')} />
-                                    <NavItem icon={ShieldCheck} label={t.tabs.agency} active={activeTab==='agency'} onClick={()=>setActiveTab('agency')} />
-                                    <NavItem icon={Crown} label={t.tabs.products} active={activeTab==='products'} onClick={()=>setActiveTab('products')} />
-                                    <NavItem icon={Newspaper} label={t.tabs.news} active={activeTab==='news'} onClick={()=>setActiveTab('news')} />
-                                    <NavItem icon={Briefcase} label={t.tabs.family} active={activeTab==='family'} onClick={()=>setActiveTab('family')} />
-                                    <NavItem icon={Building2} label={t.tabs.partners} active={activeTab==='partners'} onClick={()=>setActiveTab('partners')} />
-                                    <NavItem icon={Medal} label={t.tabs.awards} active={activeTab==='awards'} onClick={()=>setActiveTab('awards')} />
-                                </div>
-                            </div>
-                        </div>
-                    </header>
-
-                    {/* 2. Main Content Container (Curved Overlap) */}
-                    <main className="flex-1 bg-[#f5f0e6] relative z-10 -mt-16 md:-mt-24 rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] pt-8 md:pt-12 transition-all duration-500 min-h-[600px]">
-                        
-                        {/* Decorative Top Line */}
-                        <div className="w-16 h-1.5 bg-yellow-400/50 mx-auto rounded-full mb-8 md:mb-12"></div>
-
-                        {renderContent()}
-
-                        {/* Google Map Integration (Visible on Home or Footer area) */}
-                        <div className="px-4 md:px-8 pb-24 mt-12 max-w-7xl mx-auto">
-                            <SectionTitle title="公司位置" subtitle="LOCATION" />
-                            <div className="flex flex-col md:flex-row gap-6">
-                                <Card className="p-0 h-64 md:h-96 w-full md:w-2/3 relative overflow-hidden order-2 md:order-1">
-                                    <iframe 
-                                        width="100%" 
-                                        height="100%" 
-                                        frameBorder="0" 
-                                        style={{border:0}}
-                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3691.546377626306!2d114.16!3d22.28!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x34040062546311dd%3A0x6b876127e7e82205!2sCentral%2C%20Hong%20Kong!5e0!3m2!1sen!2stw!4v1645600000000!5m2!1sen!2stw" 
-                                        allowFullScreen>
-                                    </iframe>
-                                </Card>
-                                <div className="w-full md:w-1/3 flex flex-col justify-center gap-4 text-center md:text-left order-1 md:order-2 px-4">
-                                    <h4 className="text-xl font-bold text-[#7A0C0C] classical-font">香港總部</h4>
-                                    <p className="text-gray-600">香港中環金融街8號<br/>國際金融中心二期</p>
-                                    <p className="text-gray-600 font-bold">Tel: +852 1234 5678</p>
-                                    <a 
-                                        href="https://www.google.com/maps/search/?api=1&query=Central,HongKong" 
-                                        target="_blank"
-                                        className="bg-[#4285F4] text-white px-6 py-3 rounded-full shadow-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition w-full md:w-auto"
-                                    >
-                                        <MapPin size={18} /> 開啟 Google Maps 導航
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-
-                    {/* 3. Footer / Admin Toggle */}
-                    <footer className="bg-[#1B1B1B] text-yellow-600/50 py-8 text-center text-xs border-t border-yellow-900/30">
-                        <div className="max-w-7xl mx-auto px-4">
-                            <p className="mb-4">&copy; 2026 Yuance Wealth Management. All rights reserved.</p>
-                            <button 
-                                onClick={() => setIsAdmin(!isAdmin)}
-                                className={`px-4 py-1.5 border border-yellow-900 rounded hover:border-yellow-600 transition ${isAdmin ? 'text-yellow-400 border-yellow-400' : 'text-gray-600'}`}
-                            >
-                                {isAdmin ? '管理員模式: 開啟' : '管理員登入'}
-                            </button>
-                        </div>
-                    </footer>
-
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // 網頁開啟時第一次計算
+        calculateAll();
     </script>
 </body>
 </html>
