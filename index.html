@@ -5,193 +5,293 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>韓國旅遊消費回饋計算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 卡片切換過渡效果 */
+        .plan-card { transition: all 0.3s ease; }
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #F9F0ED; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #E58889; border-radius: 4px; opacity: 0.8; }
+        ::-webkit-scrollbar-thumb:hover { background: #d47071; }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+<body class="bg-[#F9F0ED] min-h-screen p-4 md:p-8 font-sans text-[#567357]">
     <div class="max-w-6xl mx-auto space-y-6">
-
-        <!-- 標題與設定 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">🇰🇷 韓國旅遊消費回饋計算器</h1>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="flex items-center space-x-2">
-                    <label class="text-sm font-medium text-gray-600">目前設定匯率：1 韓元 = </label>
-                    <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-20 p-1 border rounded text-center font-bold text-blue-600" onchange="calculateAll()">
-                    <span class="text-sm text-gray-600">台幣</span>
+        
+        <!-- 標題與匯率設定 -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-[#E58889]/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-[#567357] mb-2">🇰🇷 韓國旅遊消費回饋計算器</h1>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-[#567357]/80">目前設定匯率：1 韓元 = </label>
+                        <input type="number" id="exchangeRate" value="0.024" step="0.001" class="w-24 p-1.5 border-2 border-[#567357]/20 rounded-lg text-center font-bold text-[#567357] focus:outline-none focus:border-[#E58889] transition-colors" onchange="updateRate()">
+                        <span class="text-sm text-[#567357]/80">台幣</span>
+                    </div>
+                    <span class="text-xs text-[#E58889] font-medium sm:ml-2">※ 此為估算工具，實際回饋依官方公告為準</span>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">目前 Richart 方案</label>
-                    <select id="richartPlan" class="w-full p-2 border rounded-xl bg-gray-50" onchange="calculateAll()">
-                        <option value="taishinPay">Pay 著刷｜台新 Pay+ 3.8%</option>
-                        <option value="richartTravel">玩旅刷｜海外刷卡 3.3%</option>
-                    </select>
+            </div>
+            
+            <!-- 台新方案切換器 -->
+            <div class="bg-[#F9F0ED] p-4 rounded-2xl border border-[#567357]/10 shadow-sm w-full md:w-auto">
+                <div class="text-sm font-bold text-[#567357] mb-2 flex items-center gap-1">
+                    <span>🔄 台新信用卡今日方案設定</span>
                 </div>
-
-                <div class="text-xs text-gray-500 leading-5">
-                    ※ Richart 方案一次只能擇一，本計算器會依您目前選擇的方案推薦。<br>
-                    ※ 回饋活動請以銀行／電支官方公告為準。
+                <div class="flex bg-white p-1 rounded-xl shadow-inner gap-1">
+                    <button id="btn-taishinpay" onclick="switchTaishin('taishinpay')" class="flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-[#567357] text-white">
+                        pay著刷
+                    </button>
+                    <button id="btn-taishin" onclick="switchTaishin('taishin')" class="flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-400 hover:text-[#567357]">
+                        玩旅刷
+                    </button>
                 </div>
+                <p class="text-[10px] text-[#567357]/60 mt-2 text-center">※ 每日限更改一次，擇一計算回饋</p>
             </div>
         </div>
 
         <!-- 方案餘額與進度條 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            <!-- 全支付 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- 1. icash Pay -->
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-[#E58889]/20 hover:shadow-md transition-shadow flex flex-col">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded">最高約9.5% 免手續費</span>
-                    <span class="text-xs text-gray-500">滿萬加碼＋將來週上限</span>
+                    <span class="px-2 py-1 bg-[#E58889] text-white text-[10px] sm:text-[11px] font-bold rounded-lg tracking-wide">15% 免手續費</span>
+                    <span class="text-xs font-bold text-[#567357]/80 text-right mt-1">可刷 TWD 2,000</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">全支付｜綁將來銀行</h3>
-                <p class="text-2xl font-black text-orange-600 my-2" id="pxpayplusRemaining">將來剩 100 點</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="pxpayplusBar" class="bg-orange-500 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-[#567357]">icash Pay</h3>
+                
+                <div class="mt-auto pt-2">
+                    <p class="text-2xl font-black text-[#E58889] my-2" id="icashRemaining">TWD 2,000</p>
+                    <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
+                        <div id="icashBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="icashEarned">已賺: 0 / 上限 300 點</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="pxpayplusEarned">已賺: 0 全點</p>
             </div>
 
-            <!-- icash Pay -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <!-- 2. 悠遊付 -->
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-[#E58889]/20 hover:shadow-md transition-shadow flex flex-col">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded">15% 免手續費</span>
-                    <span class="text-xs text-gray-500">可回饋消費 TWD 2,000</span>
+                    <span class="px-2 py-1 bg-[#E58889] text-white text-[10px] sm:text-[11px] font-bold rounded-lg tracking-wide">10.5% 免手續費</span>
+                    <span class="text-xs font-bold text-[#567357]/80 text-right mt-1">可刷 TWD 5,714</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">icash Pay</h3>
-                <p class="text-2xl font-black text-purple-600 my-2" id="icashRemaining">TWD 2,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="icashBar" class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-[#567357]">悠遊付</h3>
+                
+                <div class="mt-auto pt-2">
+                    <p class="text-2xl font-black text-[#E58889] my-2" id="easyRemaining">TWD 5,714</p>
+                    <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
+                        <div id="easyBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="easyEarned">已賺: 0 / 上限 600 元</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="icashEarned">已賺: 0 OPENPOINT</p>
             </div>
 
-            <!-- 悠遊付 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <!-- 3. 全支付 -->
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-[#E58889]/20 hover:shadow-md transition-shadow flex flex-col">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs font-bold rounded">10.5% 免手續費</span>
-                    <span class="text-xs text-gray-500">可回饋消費 TWD 5,714</span>
+                    <span class="px-2 py-1 bg-[#E58889] text-white text-[10px] sm:text-[11px] font-bold rounded-lg tracking-wide">3.5% + 破萬5% + 將來5%</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-[#567357]/80 text-right mt-1 leading-tight">基本 TWD 28,571<br>將來 TWD 2,000</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">悠遊付</h3>
-                <p class="text-2xl font-black text-cyan-600 my-2" id="easyRemaining">TWD 5,714</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="easyBar" class="bg-cyan-500 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-[#567357]">全支付 <span class="text-xs font-normal text-[#567357]/70">(綁將來銀行)</span></h3>
+                
+                <div class="mt-auto pt-2">
+                    <!-- 全支付分成兩行設計 -->
+                    <div class="my-2 space-y-0.5">
+                        <p class="text-xl md:text-2xl font-black text-[#E58889] whitespace-nowrap tracking-tight" id="pxpayRemainingBase">基本 TWD 28,571</p>
+                        <p class="text-xl md:text-2xl font-black text-[#E58889] whitespace-nowrap tracking-tight" id="pxpayRemainingNext">將來 TWD 2,000</p>
+                    </div>
+                    <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
+                        <div id="pxpayBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="pxpayEarned">基本: 0/1000點 | 將來: 0/100點</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="easyEarned">已賺: 0 元</p>
             </div>
 
-            <!-- 富邦好市多卡 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <!-- 4. 富邦好市多卡 -->
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-[#E58889]/20 hover:shadow-md transition-shadow flex flex-col">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded">5% 扣1.5%手續費</span>
-                    <span class="text-xs text-gray-500">加碼消費 TWD 15,000</span>
+                    <!-- 新的需求3：1% + 4%加碼 - 1.5%手續費 = 3.5% -->
+                    <span class="px-2 py-1 bg-[#E58889] text-white text-[10px] sm:text-[11px] font-bold rounded-lg tracking-wide">1% + 4%加碼 - 1.5%手續費 = 3.5%</span>
+                    <span class="text-xs font-bold text-[#567357]/80 text-right mt-1">加碼可刷 TWD 15,000</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">富邦好市多卡</h3>
-                <p class="text-2xl font-black text-amber-600 my-2" id="fubonRemaining">TWD 15,000</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="fubonBar" class="bg-amber-500 h-2 rounded-full" style="width: 100%"></div>
+                <!-- 新的需求4：詳細列出1%無上限+4%最高600 -->
+                <h3 class="font-bold text-lg text-[#567357]">富邦好市多卡</h3>
+                
+                <div class="mt-auto pt-2">
+                    <!-- 新的需求2：不要寫剩餘 -->
+                    <p class="text-2xl font-black text-[#E58889] my-2" id="fubonRemaining">TWD 15,000</p>
+                    <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
+                        <div id="fubonBar" class="bg-[#567357] h-2.5 rounded-full transition-all duration-500" style="width: 100%"></div>
+                    </div>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="fubonEarned">1%賺: 0 | 4%賺: 0 / 上限 600</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="fubonEarned">淨賺: 0 元</p>
             </div>
 
-            <!-- Richart Pay 著刷 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded">3.8% 免手續費</span>
-                    <span class="text-xs text-gray-500">依活動規則</span>
+            <!-- 5. pay著刷 (原台新Pay+) -->
+            <div id="card-taishinpay" class="plan-card bg-white p-5 rounded-3xl shadow-sm border border-[#E58889]/20 hover:shadow-md relative overflow-hidden flex flex-col">
+                <div id="badge-taishinpay" class="absolute top-0 right-0 bg-[#E58889] text-white text-xs font-bold px-3 py-1 rounded-bl-xl z-10">啟用中</div>
+                <div class="flex justify-between items-start mb-2 mt-1">
+                    <span class="px-2 py-1 bg-[#E58889] text-white text-[10px] sm:text-[11px] font-bold rounded-lg tracking-wide">3.8% 免手續費</span>
+                    <span class="text-xs font-bold text-[#567357]/80 text-right mt-1 mr-14">可刷無上限</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">Richart｜Pay 著刷</h3>
-                <p class="text-2xl font-black text-rose-600 my-2" id="taishinPayRemaining">依活動</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="taishinPayBar" class="bg-rose-500 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-[#567357] flex items-center gap-2">Richart｜pay著刷</h3>
+                
+                <div class="mt-auto pt-2">
+                    <p class="text-2xl font-black text-[#E58889] my-2" id="taishinpayRemaining">無上限</p>
+                    <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
+                        <div id="taishinpayBar" class="bg-[#567357] h-2.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="taishinpayEarned">已賺: 0 / 無上限</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="taishinPayEarned">已賺: 0 台新Point</p>
             </div>
 
-            <!-- Richart 玩旅刷 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded">3.3% 扣1.5%手續費</span>
-                    <span class="text-xs text-gray-500">依活動規則</span>
+            <!-- 6. 玩旅刷 (原台新銀行) -->
+            <div id="card-taishin" class="plan-card bg-white p-5 rounded-3xl shadow-sm border border-[#E58889]/20 hover:shadow-md relative overflow-hidden flex flex-col">
+                <div id="badge-taishin" class="absolute top-0 right-0 bg-gray-300 text-white text-xs font-bold px-3 py-1 rounded-bl-xl hidden z-10">啟用中</div>
+                <div class="flex justify-between items-start mb-2 mt-1">
+                    <span class="px-2 py-1 bg-[#E58889] text-white text-[10px] sm:text-[11px] font-bold rounded-lg tracking-wide">3.3% - 1.5%手續費 = 1.8%</span>
+                    <span class="text-xs font-bold text-[#567357]/80 text-right mt-1 mr-14">可刷無上限</span>
                 </div>
-                <h3 class="font-bold text-lg text-gray-800">Richart｜玩旅刷</h3>
-                <p class="text-2xl font-black text-blue-600 my-2" id="richartTravelRemaining">依活動</p>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div id="richartTravelBar" class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                <h3 class="font-bold text-lg text-[#567357] flex items-center gap-2">Richart｜玩旅刷</h3>
+                
+                <div class="mt-auto pt-2">
+                    <p class="text-2xl font-black text-[#E58889] my-2" id="taishinRemaining">無上限</p>
+                    <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
+                        <div id="taishinBar" class="bg-[#567357] h-2.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                    <p class="text-[11px] sm:text-xs text-[#567357]/70 mt-2 text-right font-medium" id="taishinEarned">淨賺: 0 / 無上限</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-2 text-right" id="richartTravelEarned">已賺: 0 台新Point</p>
             </div>
         </div>
 
-        <!-- 新增消費紀錄 -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-4">➕ 新增消費紀錄</h2>
-
-            <form id="expenseForm" onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">消費名稱</label>
-                    <input type="text" id="expName" placeholder="例如：吃飯、醫美" required class="w-full p-2 border rounded-xl">
+        <!-- ✨ 智慧付款推薦小幫手 -->
+        <div class="bg-[#567357] p-6 rounded-3xl shadow-md text-white">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                ✨ 智慧付款推薦小幫手
+            </h2>
+            <p class="text-sm text-white/80 mb-4">勾選這間店支援的環境、並輸入金額，馬上為您精算出**最佳淨賺策略**！</p>
+            
+            <form onsubmit="recommendPayment(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                
+                <!-- 環境選項 (ZeroPay, HIVEX, TWQR 等) -->
+                <div class="md:col-span-12 flex flex-wrap gap-2 text-sm text-white mb-2">
+                    <label class="flex items-center gap-1.5 cursor-pointer bg-white/10 px-3 py-2 rounded-xl border border-white/20 hover:bg-white/20 transition">
+                        <input type="checkbox" id="recEnvZeroPay" class="accent-[#E58889] w-4 h-4" checked> 𝗭𝗲𝗿𝗼𝗣𝗮𝘆 <span class="text-[10px] opacity-70 ml-1">(全支付)</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer bg-white/10 px-3 py-2 rounded-xl border border-white/20 hover:bg-white/20 transition">
+                        <input type="checkbox" id="recEnvHivex" class="accent-[#E58889] w-4 h-4" checked> 𝗛𝗜𝗩𝗘𝗫 <span class="text-[10px] opacity-70 ml-1">(全支付)</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer bg-white/10 px-3 py-2 rounded-xl border border-white/20 hover:bg-white/20 transition">
+                        <input type="checkbox" id="recEnvTwqr" class="accent-[#E58889] w-4 h-4" checked> TWQR <span class="text-[10px] opacity-70 ml-1">(icash/悠遊)</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer bg-white/10 px-3 py-2 rounded-xl border border-white/20 hover:bg-white/20 transition">
+                        <input type="checkbox" id="recEnvHanaPay" class="accent-[#E58889] w-4 h-4" checked> Hana Pay <span class="text-[10px] opacity-70 ml-1">(pay著刷)</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer bg-white/10 px-3 py-2 rounded-xl border border-white/20 hover:bg-white/20 transition">
+                        <input type="checkbox" id="recEnvCard" class="accent-[#E58889] w-4 h-4" checked> 實體刷卡 <span class="text-[10px] opacity-70 ml-1">(富邦/玩旅)</span>
+                    </label>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">幣別與金額</label>
+                <div class="md:col-span-4">
+                    <label class="block text-sm font-medium text-white/90 mb-1">花費項目 (選填)</label>
+                    <input type="text" id="recItem" placeholder="例如：明洞 Olive Young" class="w-full p-2.5 border-0 rounded-xl text-[#567357] focus:ring-2 focus:ring-[#E58889] focus:outline-none">
+                </div>
+                <div class="md:col-span-5">
+                    <label class="block text-sm font-medium text-white/90 mb-1">幣別與金額</label>
                     <div class="flex">
-                        <select id="expCurrency" class="p-2 border rounded-l-xl bg-gray-50">
+                        <select id="recCurrency" class="p-2.5 border-0 border-r border-gray-200 rounded-l-xl bg-[#F9F0ED] text-[#567357] focus:outline-none font-medium">
                             <option value="KRW">KRW 韓元</option>
                             <option value="TWD">TWD 台幣</option>
                         </select>
-                        <input type="number" id="expAmount" placeholder="金額" required class="w-full p-2 border rounded-r-xl">
+                        <input type="number" id="recAmount" placeholder="金額" required class="w-full p-2.5 border-0 rounded-r-xl text-[#567357] focus:ring-2 focus:ring-[#E58889] focus:outline-none">
                     </div>
                 </div>
+                <div class="md:col-span-3">
+                    <button type="submit" class="w-full bg-[#E58889] text-white font-bold p-2.5 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all h-[46px]">幫我精算！</button>
+                </div>
+            </form>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">實際支付方式</label>
-                    <select id="expMethod" class="w-full p-2 border rounded-xl bg-gray-50">
-                        <option value="pxpayplus">全支付｜綁將來銀行</option>
-                        <option value="icash">icash Pay｜15%</option>
-                        <option value="easy">悠遊付｜10.5%</option>
-                        <option value="fubon">富邦好市多卡｜5%</option>
-                        <option value="taishinPay">Richart｜Pay 著刷</option>
-                        <option value="richartTravel">Richart｜玩旅刷</option>
+            <!-- 推薦結果顯示區 -->
+            <div id="recResultArea" class="mt-4 hidden bg-white text-[#567357] p-4 rounded-2xl shadow-inner animate-fade-in">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-bold text-[#E58889]" id="recAskText"></span>
+                    <button onclick="applyRecommendation()" class="text-xs bg-[#567357] text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition shadow-sm">✓ 直接帶入記帳</button>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="flex-1 w-full p-3 bg-[#F9F0ED] rounded-xl border border-[#E58889]/40 relative overflow-hidden shadow-sm">
+                        <div class="absolute top-0 right-0 bg-[#E58889] text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">最佳推薦 🏆</div>
+                        <p class="text-xs text-[#567357]/80 font-semibold mb-1">最推薦使用</p>
+                        <p class="text-xl font-extrabold text-[#567357]" id="recBestName">---</p>
+                        <p class="text-sm font-bold text-[#E58889] mt-1" id="recBestReward">預估淨賺: 0 元</p>
+                    </div>
+                    <div class="flex-1 w-full p-3 bg-gray-50 rounded-xl border border-gray-200 opacity-80">
+                        <p class="text-xs text-gray-500 font-semibold mb-1">次佳方案 🥈</p>
+                        <p class="text-lg font-bold text-gray-700" id="recSecondName">---</p>
+                        <p class="text-sm font-bold text-gray-500 mt-1" id="recSecondReward">預估淨賺: 0 元</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ➕ 新增消費紀錄表單 -->
+        <div id="expenseFormContainer" class="bg-white p-6 rounded-3xl shadow-sm border border-[#E58889]/20">
+            <h2 id="formTitle" class="text-xl font-bold text-[#567357] mb-4 flex items-center gap-2">
+                ➕ 補登消費紀錄
+            </h2>
+            <form id="expenseForm" onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                <div class="md:col-span-4">
+                    <label class="block text-sm font-semibold text-[#567357] mb-1">消費名稱</label>
+                    <input type="text" id="expName" placeholder="例如：吃飯、醫美" required class="w-full p-2.5 border border-[#567357]/20 rounded-xl focus:ring-2 focus:ring-[#E58889]/50 focus:outline-none transition">
+                </div>
+                <div class="md:col-span-4">
+                    <label class="block text-sm font-semibold text-[#567357] mb-1">幣別與金額</label>
+                    <div class="flex">
+                        <select id="expCurrency" class="p-2.5 border border-[#567357]/20 border-r-0 rounded-l-xl bg-[#F9F0ED]/50 focus:outline-none font-medium text-[#567357]">
+                            <option value="KRW">KRW 韓元</option>
+                            <option value="TWD">TWD 台幣</option>
+                        </select>
+                        <input type="number" id="expAmount" placeholder="金額" required class="w-full p-2.5 border border-[#567357]/20 rounded-r-xl focus:ring-2 focus:ring-[#E58889]/50 focus:outline-none transition">
+                    </div>
+                </div>
+                <div class="md:col-span-4">
+                    <label class="block text-sm font-semibold text-[#567357] mb-1">實際支付方式</label>
+                    <select id="expMethod" class="w-full p-2.5 border border-[#567357]/20 rounded-xl bg-[#F9F0ED]/50 focus:outline-none focus:ring-2 focus:ring-[#E58889]/50 transition font-medium text-[#567357]">
+                        <option value="icash">icash Pay</option>
+                        <option value="easy">悠遊付</option>
+                        <option value="pxpay">全支付</option>
+                        <option value="fubon">富邦好市多卡</option>
+                        <option value="taishinpay" id="opt-taishinpay">pay著刷</option>
+                        <option value="taishin" id="opt-taishin" hidden>玩旅刷</option>
                     </select>
                 </div>
-
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" id="canUsePxpayplus" checked class="rounded">
-                        <span>本筆可用全支付</span>
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" id="canUseTaishinPay" checked class="rounded">
-                        <span>本筆可用台新 Pay+</span>
-                    </label>
+                
+                <div class="md:col-span-12 flex gap-2 mt-2">
+                    <button type="submit" id="submitBtn" class="w-full bg-[#567357] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transform hover:-translate-y-0.5 transition-all">手動記一筆</button>
+                    <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden w-1/3 bg-gray-200 text-gray-600 font-bold p-3 rounded-xl hover:bg-gray-300 shadow-sm transition-all">取消編輯</button>
                 </div>
-
-                <button type="submit" class="w-full bg-blue-600 text-white font-bold p-2 rounded-xl hover:bg-blue-700 transition">記一筆</button>
             </form>
         </div>
 
-        <!-- 消費歷史紀錄列表 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-gray-800">📜 消費明細</h2>
-                <button onclick="clearAll()" class="text-xs text-red-500 hover:underline">全部清空</button>
+        <!-- 📜 消費明細與覆盤 -->
+        <div class="bg-white rounded-3xl shadow-sm border border-[#E58889]/20 overflow-hidden">
+            <div class="p-6 border-b border-[#E58889]/10 flex justify-between items-center bg-[#F9F0ED]/30">
+                <h2 class="text-xl font-bold text-[#567357] flex items-center gap-2">
+                    📜 旅途消費紀錄
+                </h2>
+                <button onclick="clearAll()" class="text-sm font-medium text-[#E58889] hover:text-white hover:bg-[#E58889] px-3 py-1.5 rounded-lg transition border border-[#E58889]">全部清空</button>
             </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-sm font-medium border-b border-gray-100">
-                            <th class="p-4">項目</th>
-                            <th class="p-4">原始金額</th>
-                            <th class="p-4">折合台幣</th>
-                            <th class="p-4">支付管道</th>
-                            <th class="p-4">估計淨回饋</th>
-                            <th class="p-4">本筆最佳建議</th>
-                            <th class="p-4 text-center">操作</th>
+                        <tr class="bg-[#F9F0ED] text-[#567357] text-sm font-bold border-b border-[#E58889]/20">
+                            <th class="p-4 min-w-[120px]">消費項目</th>
+                            <th class="p-4 min-w-[100px]">原始金額</th>
+                            <th class="p-4 min-w-[120px]">折合台幣</th>
+                            <th class="p-4 min-w-[120px]">實際支付管道</th>
+                            <th class="p-4 min-w-[120px]">此筆淨回饋</th>
+                            <th class="p-4 text-center min-w-[100px]">操作</th>
                         </tr>
                     </thead>
-                    <tbody id="expenseList" class="divide-y divide-gray-100 text-gray-700">
+                    <tbody id="expenseList" class="divide-y divide-[#E58889]/10 text-[#567357]">
                         <!-- 動態插入 -->
                     </tbody>
                 </table>
@@ -201,413 +301,390 @@
     </div>
 
     <script>
-        // 初始化預設資料
-        let expenses = [
-            {
-                id: 1,
-                name: '吃飯',
-                amount: 20000,
-                currency: 'KRW',
-                method: 'icash',
-                canUsePxpayplus: true,
-                canUseTaishinPay: true
-            },
-            {
-                id: 2,
-                name: '購物',
-                amount: 35000,
-                currency: 'KRW',
-                method: 'easy',
-                canUsePxpayplus: true,
-                canUseTaishinPay: true
-            },
-            {
-                id: 3,
-                name: '醫美',
-                amount: 800000,
-                currency: 'KRW',
-                method: 'fubon',
-                canUsePxpayplus: false,
-                canUseTaishinPay: false
-            }
-        ];
+        let expenses = JSON.parse(localStorage.getItem('korea_expenses')) || [];
+        const savedRate = localStorage.getItem('korea_exchange_rate');
+        if (savedRate) document.getElementById('exchangeRate').value = savedRate;
+        let activeTaishinPlan = localStorage.getItem('korea_active_plan') || 'taishinpay';
+        let editingId = null; 
+        let currentRecMethod = '';
 
-        const methodsConfig = {
-            pxpayplus: {
-                name: '全支付｜綁將來銀行',
-                fee: 0,
-                capType: 'none',
-                color: 'orange',
-                rewardUnit: '全點',
-                note: '3.5%＋滿萬5%＋將來5%',
-
-                baseRate: 0.035,
-                baseSingleCap: 350,
-
-                over10kThreshold: 10000,
-                over10kRate: 0.05,
-                totalSingleCapWithOver10k: 850,
-
-                nextBankRate: 0.05,
-                nextBankWeeklyCap: 100
-            },
-            icash: {
-                name: 'icash Pay',
-                rate: 0.15,
-                fee: 0,
-                cap: 2000,
-                capType: 'spending',
-                color: 'purple',
-                rewardUnit: 'OPENPOINT',
-                note: '15%｜免手續費'
-            },
-            easy: {
-                name: '悠遊付',
-                rate: 0.105,
-                fee: 0,
-                cap: 5714,
-                capType: 'spending',
-                color: 'cyan',
-                rewardUnit: '元',
-                note: '10.5%｜免手續費'
-            },
-            fubon: {
-                name: '富邦好市多卡',
-                rate: 0.05,
-                baseRate: 0.01,
-                bonusRate: 0.04,
-                fee: 0.015,
-                cap: 15000,
-                capType: 'spending',
-                color: 'amber',
-                rewardUnit: '元',
-                note: '5%｜扣1.5%手續費'
-            },
-            taishinPay: {
-                name: 'Richart｜Pay 著刷',
-                rate: 0.038,
-                fee: 0,
-                cap: Infinity,
-                capType: 'none',
-                color: 'rose',
-                rewardUnit: '台新Point',
-                note: '3.8%｜免手續費'
-            },
-            richartTravel: {
-                name: 'Richart｜玩旅刷',
-                rate: 0.033,
-                fee: 0.015,
-                cap: Infinity,
-                capType: 'none',
-                color: 'blue',
-                rewardUnit: '台新Point',
-                note: '3.3%｜扣1.5%手續費'
-            }
+        const PAY_METHODS = {
+            icash: { name: 'icash Pay' },
+            easy: { name: '悠遊付' },
+            pxpay: { name: '全支付' },
+            fubon: { name: '富邦好市多卡' },
+            taishinpay: { name: 'pay著刷' },
+            taishin: { name: '玩旅刷' }
         };
+
+        const CAPS = {
+            icash: 2000,
+            easy: 5714,
+            fubon: 15000,
+            pxpayAct12Cap: 1000,
+            pxpayNextBankCap: 100
+        };
+
+        function createInitialState() {
+            return {
+                icash: 0, easy: 0, fubon: 0,
+                pxpayAct12: 0, pxpayNextBank: 0,
+                fubonBaseEarned: 0, fubonBonusEarned: 0,
+                taishinpay: 0, taishin: 0,
+                rewards: { icash: 0, easy: 0, pxpay: 0, fubon: 0, taishinpay: 0, taishin: 0 }
+            };
+        }
+
+        // 全支付運算模組
+        function calculatePxpayReward(twdAmount, state) {
+            let act1 = Math.min(Math.round(twdAmount * 0.035), 350);
+            let act2 = twdAmount >= 10000 ? Math.min(Math.round(twdAmount * 0.05), 850) : 0;
+            let currentAct12 = act1 + act2;
+            let available12 = Math.max(0, CAPS.pxpayAct12Cap - state.pxpayAct12);
+            let granted12 = Math.min(currentAct12, available12);
+
+            let act3 = Math.min(Math.round(twdAmount * 0.05), 100);
+            let available3 = Math.max(0, CAPS.pxpayNextBankCap - state.pxpayNextBank);
+            let granted3 = Math.min(act3, available3);
+
+            return {
+                reward: granted12 + granted3,
+                act12Spent: granted12,
+                nextBankSpent: granted3
+            };
+        }
+
+        // 富邦好市多運算模組
+        function calculateFubonReward(twdAmount, state) {
+            let leftFubon = Math.max(0, CAPS.fubon - state.fubon);
+            let validAmountForBonus = Math.min(twdAmount, leftFubon); // 4% 加碼僅計算在 15,000 額度內
+            let baseEarned = Math.round(twdAmount * 0.01);
+            let bonusEarned = Math.round(validAmountForBonus * 0.04);
+            let fee = Math.round(twdAmount * 0.015);
+            return {
+                net: baseEarned + bonusEarned - fee,
+                baseEarned,
+                bonusEarned
+            };
+        }
+
+        // 統整運算模組
+        function calculateAllMethodsReward(twdAmount, state) {
+            let results = {};
+
+            let leftIcash = Math.max(0, CAPS.icash - state.icash);
+            results.icash = Math.round(Math.min(twdAmount, leftIcash) * 0.15);
+
+            let leftEasy = Math.max(0, CAPS.easy - state.easy);
+            results.easy = Math.round(Math.min(twdAmount, leftEasy) * 0.105);
+
+            results.pxpay = calculatePxpayReward(twdAmount, state).reward;
+
+            results.fubon = calculateFubonReward(twdAmount, state).net;
+
+            results.taishinpay = Math.round(twdAmount * 0.038);
+            results.taishin = Math.round(twdAmount * 0.033) - Math.round(twdAmount * 0.015);
+
+            return results;
+        }
+
+        function applyExpenseToState(exp, twdAmount, state) {
+            const method = exp.method;
+            
+            // 先計算回饋 (修復 icash pay 及其他依額度回饋的 bug，確保取得消費當下的可用上限)
+            if (method === 'pxpay') {
+                let pxRes = calculatePxpayReward(twdAmount, state);
+                state.pxpayAct12 += pxRes.act12Spent;
+                state.pxpayNextBank += pxRes.nextBankSpent;
+                state.rewards.pxpay += pxRes.reward;
+            } else if (method === 'fubon') {
+                let fbRes = calculateFubonReward(twdAmount, state);
+                state.fubonBaseEarned += fbRes.baseEarned;
+                state.fubonBonusEarned += fbRes.bonusEarned;
+                state.rewards.fubon += fbRes.net;
+            } else {
+                let allRewards = calculateAllMethodsReward(twdAmount, state);
+                state.rewards[method] += allRewards[method];
+            }
+
+            // 回饋計算完畢後，再將本次消費金額疊加上去
+            if (state[method] !== undefined) state[method] += twdAmount;
+        }
+
+        function findBestMethod(twdAmount, state, envOptions) {
+            const rewards = calculateAllMethodsReward(twdAmount, state);
+            let candidates = [];
+            
+            // 根據使用者勾選的環境，開放對應的支付工具
+            if (envOptions.zeroPay || envOptions.hivex) {
+                candidates.push({ method: 'pxpay', name: '全支付', reward: rewards.pxpay });
+            }
+            if (envOptions.twqr) {
+                candidates.push({ method: 'icash', name: 'icash Pay', reward: rewards.icash });
+                candidates.push({ method: 'easy', name: '悠遊付', reward: rewards.easy });
+            }
+            if (envOptions.hanaPay) {
+                candidates.push({ method: 'taishinpay', name: 'pay著刷', reward: rewards.taishinpay });
+            }
+            if (envOptions.card) {
+                candidates.push({ method: 'fubon', name: '富邦好市多卡', reward: rewards.fubon });
+                candidates.push({ method: 'taishin', name: '玩旅刷', reward: rewards.taishin });
+            }
+
+            // 過濾掉未啟用的台新方案
+            candidates = candidates.filter(c => {
+                if (c.method === 'taishinpay' && activeTaishinPlan !== 'taishinpay') return false;
+                if (c.method === 'taishin' && activeTaishinPlan !== 'taishin') return false;
+                return true;
+            });
+
+            candidates.sort((a, b) => b.reward - a.reward);
+            return candidates;
+        }
+
+        function saveData() { localStorage.setItem('korea_expenses', JSON.stringify(expenses)); }
+
+        function updateRate() {
+            const rate = document.getElementById('exchangeRate').value;
+            localStorage.setItem('korea_exchange_rate', rate);
+            renderAll();
+        }
+
+        function switchTaishin(plan) {
+            activeTaishinPlan = plan;
+            localStorage.setItem('korea_active_plan', plan); 
+            
+            const btnPay = document.getElementById('btn-taishinpay');
+            const btnTaishin = document.getElementById('btn-taishin');
+            const cardPay = document.getElementById('card-taishinpay');
+            const cardTaishin = document.getElementById('card-taishin');
+            const badgePay = document.getElementById('badge-taishinpay');
+            const badgeTaishin = document.getElementById('badge-taishin');
+            
+            if (plan === 'taishinpay') {
+                btnPay.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-[#567357] text-white";
+                btnTaishin.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-400 hover:text-[#567357]";
+                cardPay.classList.remove('opacity-50', 'grayscale', 'border-gray-200');
+                cardTaishin.classList.add('opacity-50', 'grayscale', 'border-gray-200');
+                badgePay.classList.remove('hidden');
+                badgeTaishin.classList.add('hidden');
+                document.getElementById('opt-taishinpay').hidden = false;
+                document.getElementById('opt-taishin').hidden = true;
+                if(document.getElementById('expMethod').value === 'taishin' && editingId === null) {
+                    document.getElementById('expMethod').value = 'taishinpay';
+                }
+            } else {
+                btnTaishin.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-[#567357] text-white";
+                btnPay.className = "flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-400 hover:text-[#567357]";
+                cardTaishin.classList.remove('opacity-50', 'grayscale', 'border-gray-200');
+                cardPay.classList.add('opacity-50', 'grayscale', 'border-gray-200');
+                badgeTaishin.classList.remove('hidden');
+                badgePay.classList.add('hidden');
+                document.getElementById('opt-taishin').hidden = false;
+                document.getElementById('opt-taishinpay').hidden = true;
+                if(document.getElementById('expMethod').value === 'taishinpay' && editingId === null) {
+                    document.getElementById('expMethod').value = 'taishin';
+                }
+            }
+            renderAll();
+        }
+
+        function recommendPayment(e) {
+            e.preventDefault();
+            const itemName = document.getElementById('recItem').value || '此筆消費';
+            const amount = parseFloat(document.getElementById('recAmount').value);
+            const currency = document.getElementById('recCurrency').value;
+            const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
+            
+            const envOptions = {
+                zeroPay: document.getElementById('recEnvZeroPay').checked,
+                hivex: document.getElementById('recEnvHivex').checked,
+                twqr: document.getElementById('recEnvTwqr').checked,
+                hanaPay: document.getElementById('recEnvHanaPay').checked,
+                card: document.getElementById('recEnvCard').checked
+            };
+
+            const twdAmount = currency === 'KRW' ? Math.round(amount * rate) : amount;
+            let currentState = createInitialState();
+            expenses.forEach(exp => {
+                const tAmt = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
+                applyExpenseToState(exp, tAmt, currentState);
+            });
+
+            const rankedMethods = findBestMethod(twdAmount, currentState, envOptions);
+
+            if (rankedMethods.length === 0) {
+                alert("根據您勾選的環境，目前沒有合適的支付方式可以推薦！");
+                return;
+            }
+
+            const best = rankedMethods[0];
+            const second = rankedMethods[1] || { name: '無其他選項', reward: 0 };
+
+            const krwAmount = currency === 'KRW' ? amount : Math.round(amount / rate);
+            
+            document.getElementById('recAskText').innerText = `預計花費 ${itemName} (${krwAmount.toLocaleString()} KRW / NT$ ${twdAmount.toLocaleString()})`;
+            document.getElementById('recBestName').innerText = best.name;
+            document.getElementById('recBestReward').innerText = `+${best.reward} (淨賺)`;
+            document.getElementById('recSecondName').innerText = second.name;
+            document.getElementById('recSecondReward').innerText = `+${second.reward} (淨賺)`;
+            
+            currentRecMethod = best.method; 
+            document.getElementById('recResultArea').classList.remove('hidden');
+        }
+
+        function applyRecommendation() {
+            document.getElementById('expName').value = document.getElementById('recItem').value || '未命名消費';
+            document.getElementById('expAmount').value = document.getElementById('recAmount').value;
+            document.getElementById('expCurrency').value = document.getElementById('recCurrency').value;
+            document.getElementById('expMethod').value = currentRecMethod;
+            document.getElementById('expenseFormContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            document.getElementById('recItem').value = '';
+            document.getElementById('recAmount').value = '';
+            document.getElementById('recResultArea').classList.add('hidden');
+        }
 
         function addExpense(e) {
             e.preventDefault();
-
             const name = document.getElementById('expName').value;
             const amount = parseFloat(document.getElementById('expAmount').value);
             const currency = document.getElementById('expCurrency').value;
             const method = document.getElementById('expMethod').value;
-            const canUsePxpayplus = document.getElementById('canUsePxpayplus').checked;
-            const canUseTaishinPay = document.getElementById('canUseTaishinPay').checked;
 
-            expenses.push({
-                id: Date.now(),
-                name,
-                amount,
-                currency,
-                method,
-                canUsePxpayplus,
-                canUseTaishinPay
-            });
+            if (editingId) {
+                const index = expenses.findIndex(exp => exp.id === editingId);
+                if (index !== -1) { expenses[index] = { ...expenses[index], name, amount, currency, method }; }
+                cancelEdit(); 
+            } else {
+                expenses.push({ id: Date.now(), name, amount, currency, method });
+                document.getElementById('expenseForm').reset();
+                if(method.includes('taishin')) document.getElementById('expMethod').value = activeTaishinPlan;
+            }
+            saveData();
+            renderAll();
+        }
 
+        function editExpense(id) {
+            const exp = expenses.find(e => e.id === id);
+            if (!exp) return;
+            document.getElementById('expName').value = exp.name;
+            document.getElementById('expAmount').value = exp.amount;
+            document.getElementById('expCurrency').value = exp.currency;
+            if (exp.method === 'taishinpay' || exp.method === 'taishin') switchTaishin(exp.method);
+            document.getElementById('expMethod').value = exp.method;
+            editingId = id;
+            document.getElementById('formTitle').innerHTML = '✏️ 編輯消費紀錄';
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = '儲存修改';
+            submitBtn.className = "w-full bg-[#E58889] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transition-all";
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            document.getElementById('expenseFormContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function cancelEdit() {
+            editingId = null;
             document.getElementById('expenseForm').reset();
-            document.getElementById('canUsePxpayplus').checked = true;
-            document.getElementById('canUseTaishinPay').checked = true;
-            calculateAll();
+            document.getElementById('formTitle').innerHTML = '➕ 補登消費紀錄';
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = '手動記一筆';
+            submitBtn.className = "w-full bg-[#567357] text-white font-bold p-3 rounded-xl hover:bg-opacity-90 shadow-sm transition-all";
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+            document.getElementById('expMethod').value = activeTaishinPlan;
         }
 
         function deleteExpense(id) {
-            expenses = expenses.filter(exp => exp.id !== id);
-            calculateAll();
+            if(confirm('確定要刪除這筆紀錄嗎？')) {
+                expenses = expenses.filter(exp => exp.id !== id);
+                if (editingId === id) cancelEdit();
+                saveData();
+                renderAll();
+            }
         }
 
         function clearAll() {
-            if (confirm('確定要清空所有紀錄嗎？')) {
+            if(confirm('確定要清空所有紀錄嗎？所有計算將重新歸零！')) {
                 expenses = [];
-                calculateAll();
+                cancelEdit();
+                saveData();
+                renderAll();
             }
         }
 
-        function toTWD(amount, currency, rate) {
-            return currency === 'KRW'
-                ? Math.round(amount * rate)
-                : Math.round(amount);
-        }
-
-        function createEmptyState() {
-            const state = {
-                spending: {},
-                rewards: {},
-                pxpayplusNextBankUsedReward: 0
-            };
-
-            Object.keys(methodsConfig).forEach(key => {
-                state.spending[key] = 0;
-                state.rewards[key] = 0;
-            });
-
-            return state;
-        }
-
-        // 計算某一筆在某支付方式下的實際淨回饋
-        function calculateReward(methodKey, twdAmount, state) {
-            const method = methodsConfig[methodKey];
-            const usedSpendingBefore = state.spending[methodKey] || 0;
-
-            // 全支付專屬算法
-            if (methodKey === 'pxpayplus') {
-                const baseReward = Math.min(
-                    Math.round(twdAmount * method.baseRate),
-                    method.baseSingleCap
-                );
-
-                const over10kBonus = twdAmount >= method.over10kThreshold
-                    ? Math.round(twdAmount * method.over10kRate)
-                    : 0;
-
-                const mainReward = Math.min(
-                    baseReward + over10kBonus,
-                    twdAmount >= method.over10kThreshold
-                        ? method.totalSingleCapWithOver10k
-                        : method.baseSingleCap
-                );
-
-                const nextBankRemaining = Math.max(
-                    0,
-                    method.nextBankWeeklyCap - state.pxpayplusNextBankUsedReward
-                );
-
-                const nextBankReward = Math.min(
-                    Math.round(twdAmount * method.nextBankRate),
-                    nextBankRemaining
-                );
-
-                const grossReward = mainReward + nextBankReward;
-
-                return {
-                    validAmount: twdAmount,
-                    grossReward,
-                    fee: 0,
-                    netReward: grossReward,
-                    detail: `基本/滿萬 ${mainReward}＋將來 ${nextBankReward}`
-                };
-            }
-
-            let validAmount = twdAmount;
-
-            if (method.capType === 'spending') {
-                const remaining = Math.max(0, method.cap - usedSpendingBefore);
-                validAmount = Math.min(twdAmount, remaining);
-            }
-
-            let grossReward = 0;
-
-            // 富邦：基本1%整筆有，加碼4%只算15,000額度內
-            if (methodKey === 'fubon') {
-                const base = Math.round(twdAmount * method.baseRate);
-                const bonus = Math.round(validAmount * method.bonusRate);
-                grossReward = base + bonus;
-            } else {
-                grossReward = Math.round(validAmount * method.rate);
-            }
-
-            const fee = Math.round(twdAmount * method.fee);
-            const netReward = grossReward - fee;
-
-            return {
-                validAmount,
-                grossReward,
-                fee,
-                netReward,
-                detail: ''
-            };
-        }
-
-        function applyExpenseToState(methodKey, twdAmount, result, state) {
-            state.spending[methodKey] += twdAmount;
-            state.rewards[methodKey] += result.netReward;
-
-            if (methodKey === 'pxpayplus') {
-                const match = result.detail.match(/將來\s(\d+)/);
-                if (match && match[1]) {
-                    state.pxpayplusNextBankUsedReward += parseInt(match[1], 10);
-                }
-            }
-        }
-
-        // 推薦這筆最佳付款方式
-        function recommendBestMethod(twdAmount, state, options) {
-            const richartPlan = document.getElementById('richartPlan').value;
-
-            const candidateMethods = [
-                'pxpayplus',
-                'icash',
-                'easy',
-                'fubon',
-                richartPlan
-            ];
-
-            let bestMethod = null;
-            let bestReward = -999999;
-            let bestResult = null;
-
-            candidateMethods.forEach(methodKey => {
-                if (methodKey === 'pxpayplus' && !options.canUsePxpayplus) return;
-                if (methodKey === 'taishinPay' && !options.canUseTaishinPay) return;
-
-                const result = calculateReward(methodKey, twdAmount, state);
-
-                if (result.netReward > bestReward) {
-                    bestReward = result.netReward;
-                    bestMethod = methodKey;
-                    bestResult = result;
-                }
-            });
-
-            return {
-                methodKey: bestMethod,
-                methodName: methodsConfig[bestMethod].name,
-                netReward: bestReward,
-                result: bestResult
-            };
-        }
-
-        function getMethodBadge(methodKey) {
-            const method = methodsConfig[methodKey];
-
-            const colorMap = {
-                orange: 'bg-orange-100 text-orange-700',
-                purple: 'bg-purple-100 text-purple-700',
-                cyan: 'bg-cyan-100 text-cyan-700',
-                amber: 'bg-amber-100 text-amber-700',
-                rose: 'bg-rose-100 text-rose-700',
-                blue: 'bg-blue-100 text-blue-700'
-            };
-
-            return `<span class="px-2 py-1 rounded text-xs font-bold ${colorMap[method.color]}">${method.name}</span>`;
-        }
-
-        function calculateAll() {
+        function renderAll() {
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
-            const state = createEmptyState();
-
+            let state = createInitialState(); 
             const listBody = document.getElementById('expenseList');
             listBody.innerHTML = '';
 
+            // 1. 推演並畫出歷史明細
             expenses.forEach(exp => {
-                const twdAmount = toTWD(exp.amount, exp.currency, rate);
+                const twdAmount = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
+                
+                // 紀錄當下單筆帶來的回饋
+                let oldRewards = { ...state.rewards };
+                applyExpenseToState(exp, twdAmount, state);
+                let actualReward = state.rewards[exp.method] - oldRewards[exp.method];
 
-                const recommend = recommendBestMethod(twdAmount, state, {
-                    canUsePxpayplus: exp.canUsePxpayplus,
-                    canUseTaishinPay: exp.canUseTaishinPay
-                });
-
-                const actualResult = calculateReward(exp.method, twdAmount, state);
-                applyExpenseToState(exp.method, twdAmount, actualResult, state);
-
-                const method = methodsConfig[exp.method];
-
-                let rewardText = '';
-                if (actualResult.netReward >= 0) {
-                    rewardText = `+${actualResult.netReward.toLocaleString()} ${method.rewardUnit}`;
-                } else {
-                    rewardText = `${actualResult.netReward.toLocaleString()} 元`;
-                }
-
+                let actualRewardText = actualReward >= 0 ? `+${actualReward} 點/元` : `${actualReward} 元`;
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50 transition text-sm';
-
-                const isBest = recommend.methodKey === exp.method;
-
+                tr.className = 'hover:bg-[#F9F0ED]/50 transition text-sm';
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-gray-900">
-                        ${exp.name}
-                        <div class="text-xs text-gray-400 mt-1">
-                            ${exp.canUsePxpayplus ? '可用全支付' : '不可用全支付'}｜
-                            ${exp.canUseTaishinPay ? '可用台新Pay+' : '不可用台新Pay+'}
-                        </div>
-                    </td>
-                    <td class="p-4">${exp.amount.toLocaleString()} ${exp.currency}</td>
-                    <td class="p-4 font-semibold text-gray-600">NT$ ${twdAmount.toLocaleString()}</td>
-                    <td class="p-4">${getMethodBadge(exp.method)}</td>
-                    <td class="p-4 font-medium ${actualResult.netReward >= 0 ? 'text-green-600' : 'text-red-500'}">
-                        ${rewardText}
-                        <div class="text-xs text-gray-400 mt-1">
-                            手續費：NT$ ${actualResult.fee.toLocaleString()}
-                        </div>
-                        ${actualResult.detail ? `<div class="text-xs text-gray-400 mt-1">${actualResult.detail}</div>` : ''}
-                    </td>
-                    <td class="p-4 text-xs ${isBest ? 'text-green-600' : 'text-blue-600'} font-bold">
-                        ${isBest ? '✅ 已是最佳' : '建議：' + recommend.methodName}
-                        <div class="text-gray-400 font-normal mt-1">
-                            約 ${recommend.netReward >= 0 ? '+' : ''}${recommend.netReward.toLocaleString()} 元/點
-                        </div>
-                    </td>
-                    <td class="p-4 text-center">
-                        <button onclick="deleteExpense(${exp.id})" class="text-red-400 hover:text-red-600">刪除</button>
+                    <td class="p-4 font-bold text-gray-800">${exp.name}</td>
+                    <td class="p-4 opacity-80 font-medium">${exp.amount.toLocaleString()} ${exp.currency}</td>
+                    <td class="p-4 font-extrabold text-[#567357]">NT$ ${twdAmount.toLocaleString()}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-lg text-xs font-bold tracking-wide bg-[#E58889] text-white">${PAY_METHODS[exp.method].name}</span></td>
+                    <td class="p-4 font-bold ${actualReward >= 0 ? 'text-[#E58889]' : 'text-red-500'}">${actualRewardText}</td>
+                    <td class="p-4 text-center whitespace-nowrap space-x-1">
+                        <button onclick="editExpense(${exp.id})" class="text-[#567357] hover:bg-[#F9F0ED] p-1.5 rounded-lg transition font-medium">編輯</button>
+                        <button onclick="deleteExpense(${exp.id})" class="text-[#E58889] hover:bg-[#F9F0ED] p-1.5 rounded-lg transition font-medium">刪除</button>
                     </td>
                 `;
-
                 listBody.appendChild(tr);
             });
 
-            updateSummaryCards(state);
+            // 2. 更新上方 6 張卡片
+            const icashLeft = Math.max(0, CAPS.icash - state.icash);
+            document.getElementById('icashRemaining').innerText = `TWD ${icashLeft.toLocaleString()}`;
+            document.getElementById('icashBar').style.width = `${(icashLeft / CAPS.icash) * 100}%`;
+            document.getElementById('icashEarned').innerText = `已賺: ${state.rewards.icash} / 上限 300 點`;
+
+            const easyLeft = Math.max(0, CAPS.easy - state.easy);
+            document.getElementById('easyRemaining').innerText = `TWD ${easyLeft.toLocaleString()}`;
+            document.getElementById('easyBar').style.width = `${(easyLeft / CAPS.easy) * 100}%`;
+            document.getElementById('easyEarned').innerText = `已賺: ${state.rewards.easy} / 上限 600 元`;
+
+            // 全支付進階顯示
+            let pxpayAct12Left = Math.max(0, CAPS.pxpayAct12Cap - state.pxpayAct12);
+            let pxpayNextBankLeft = Math.max(0, CAPS.pxpayNextBankCap - state.pxpayNextBank);
+            // 換算剩餘「可刷金額」： 1000/0.035=28571, 100/0.05=2000
+            let pxpayAct12SpendLeft = Math.round(pxpayAct12Left / 0.035);
+            let pxpayNextBankSpendLeft = Math.round(pxpayNextBankLeft / 0.05);
+
+            document.getElementById('pxpayRemainingBase').innerText = `基本 TWD ${pxpayAct12SpendLeft.toLocaleString()}`;
+            document.getElementById('pxpayRemainingNext').innerText = `將來 TWD ${pxpayNextBankSpendLeft.toLocaleString()}`;
+            // 進度條改為以「基本餘額(28,571 / 對應 1000點)」為基準計算比例
+            const pxpayBarRatio = Math.min(100, (pxpayAct12Left / CAPS.pxpayAct12Cap) * 100);
+            document.getElementById('pxpayBar').style.width = `${pxpayBarRatio}%`;
+            document.getElementById('pxpayEarned').innerText = `基本: ${state.pxpayAct12}/1000點 | 將來: ${state.pxpayNextBank}/100點`;
+
+            // 富邦
+            const fubonLeft = Math.max(0, CAPS.fubon - state.fubon);
+            document.getElementById('fubonRemaining').innerText = `TWD ${fubonLeft.toLocaleString()}`;
+            document.getElementById('fubonBar').style.width = `${(fubonLeft / CAPS.fubon) * 100}%`;
+            document.getElementById('fubonEarned').innerText = `1%賺: ${state.fubonBaseEarned} | 4%賺: ${state.fubonBonusEarned} / 上限 600`;
+
+            // 台新
+            document.getElementById('taishinpayRemaining').innerText = `無上限`;
+            document.getElementById('taishinpayBar').style.width = `100%`;
+            document.getElementById('taishinpayEarned').innerText = `已賺: ${state.rewards.taishinpay} / 無上限`;
+
+            document.getElementById('taishinRemaining').innerText = `無上限`;
+            document.getElementById('taishinBar').style.width = `100%`;
+            document.getElementById('taishinEarned').innerText = `淨賺: ${state.rewards.taishin} / 無上限`;
         }
 
-        function updateSummaryCards(state) {
-            Object.keys(methodsConfig).forEach(key => {
-                const method = methodsConfig[key];
-
-                const remainingEl = document.getElementById(`${key}Remaining`);
-                const barEl = document.getElementById(`${key}Bar`);
-                const earnedEl = document.getElementById(`${key}Earned`);
-
-                if (!remainingEl || !barEl || !earnedEl) return;
-
-                if (key === 'pxpayplus') {
-                    const nextBankLeft = Math.max(
-                        0,
-                        method.nextBankWeeklyCap - state.pxpayplusNextBankUsedReward
-                    );
-
-                    remainingEl.innerText = `將來剩 ${nextBankLeft.toLocaleString()} 點`;
-                    barEl.style.width = `${(nextBankLeft / method.nextBankWeeklyCap) * 100}%`;
-                    earnedEl.innerText = `已賺: ${Math.round(state.rewards[key]).toLocaleString()} 全點`;
-                    return;
-                }
-
-                if (method.cap === Infinity || method.capType === 'none') {
-                    remainingEl.innerText = '依活動';
-                    barEl.style.width = '100%';
-                    earnedEl.innerText = `已賺: ${Math.round(state.rewards[key]).toLocaleString()} ${method.rewardUnit}`;
-                    return;
-                }
-
-                const left = Math.max(0, method.cap - state.spending[key]);
-                const percent = Math.max(0, (left / method.cap) * 100);
-
-                remainingEl.innerText = `TWD ${Math.round(left).toLocaleString()}`;
-                barEl.style.width = `${percent}%`;
-                earnedEl.innerText = `已賺: ${Math.round(state.rewards[key]).toLocaleString()} ${method.rewardUnit}`;
-            });
-        }
-
-        calculateAll();
+        switchTaishin(activeTaishinPlan); 
     </script>
 </body>
 </html>
