@@ -76,11 +76,11 @@
             <!-- 3. 全支付 -->
             <div class="bg-white p-5 rounded-3xl shadow-sm border border-[#E58889]/20 hover:shadow-md transition-shadow">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="px-2 py-1 bg-[#E58889] text-white text-xs font-bold rounded-lg">15% 免手續費</span>
-                    <span class="text-xs text-[#567357]/70 font-medium">上限 TWD 10,000</span>
+                    <span class="px-2 py-1 bg-[#E58889] text-white text-xs font-bold rounded-lg">最高 13.5% 免手續費</span>
+                    <span class="text-xs text-[#567357]/70 font-medium">合併上限 1,100</span>
                 </div>
-                <h3 class="font-bold text-lg text-[#567357]">全支付</h3>
-                <p class="text-2xl font-black text-[#E58889] my-2" id="pxpayRemaining">TWD 10,000</p>
+                <h3 class="font-bold text-lg text-[#567357]">全支付 <span class="text-xs font-normal text-[#567357]/70">(綁將來銀行)</span></h3>
+                <p class="text-2xl font-black text-[#E58889] my-2" id="pxpayRemaining">詳見明細</p>
                 <div class="w-full bg-[#F9F0ED] rounded-full h-2.5">
                     <div id="pxpayBar" class="bg-[#567357] h-2.5 rounded-full" style="width: 100%"></div>
                 </div>
@@ -205,7 +205,7 @@
                     <select id="expMethod" class="w-full p-2.5 border border-[#567357]/20 rounded-xl bg-[#F9F0ED]/50 focus:outline-none focus:ring-2 focus:ring-[#E58889]/50 transition font-medium text-[#567357]">
                         <option value="icash">icash Pay (15%)</option>
                         <option value="easy">悠遊付 (10.5%)</option>
-                        <option value="pxpay">全支付 (15%)</option>
+                        <option value="pxpay">全支付 (最高13.5%)</option>
                         <option value="fubon">富邦好市多卡 (3.5%)</option>
                         <option value="taishinpay" id="opt-taishinpay">pay著刷 (3.8%)</option>
                         <option value="taishin" id="opt-taishin" hidden>玩旅刷 (1.8%)</option>
@@ -254,7 +254,6 @@
         let activeTaishinPlan = localStorage.getItem('korea_active_plan') || 'taishinpay';
         let editingId = null; 
         
-        // 紀錄小幫手目前推薦的最佳付款方式，供一鍵帶入使用
         let currentRecMethod = '';
 
         function saveData() {
@@ -309,6 +308,31 @@
             }
         }
 
+        // ================= 全支付複雜回饋邏輯計算 =================
+        function calculatePxPayRewards(targetTwdAmount, currentAct12Total, currentNextBankTotal) {
+            // 活動1 (3.5%, 單筆上限350)
+            let act1 = Math.min(Math.round(targetTwdAmount * 0.035), 350);
+            
+            // 活動2 (滿萬加碼5%, 單筆上限850)
+            let act2 = targetTwdAmount >= 10000 ? Math.min(Math.round(targetTwdAmount * 0.05), 850) : 0;
+            
+            // 活動1與2合併每月上限 1000
+            let currentAct12 = act1 + act2;
+            let available12 = Math.max(0, 1000 - currentAct12Total);
+            let granted12 = Math.min(currentAct12, available12);
+
+            // 將來銀行加碼 (5%, 單筆/週上限100)
+            let act3 = Math.min(Math.round(targetTwdAmount * 0.05), 100);
+            let available3 = Math.max(0, 100 - currentNextBankTotal);
+            let granted3 = Math.min(act3, available3);
+
+            return {
+                reward: granted12 + granted3,
+                act12Spent: granted12,
+                nextBankSpent: granted3
+            };
+        }
+
         // ================= 聰明付款推薦小幫手邏輯 =================
         function recommendPayment(e) {
             e.preventDefault();
@@ -319,20 +343,27 @@
 
             const twdAmount = currency === 'KRW' ? Math.round(amount * rate) : amount;
 
-            // 1. 先計算目前各大支付的已用額度
-            const caps = { icash: 2000, easy: 5714, pxpay: 10000, fubon: 15000 };
-            const spending = { icash: 0, easy: 0, pxpay: 0, fubon: 0 };
+            // 計算目前各大支付的已用額度
+            const caps = { icash: 2000, easy: 5714, fubon: 15000 };
+            const spending = { icash: 0, easy: 0, fubon: 0 };
+            
+            let pxpayAct12Total = 0;
+            let pxpayNextBankTotal = 0;
             
             expenses.forEach(exp => {
                 const tAmt = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
                 if (spending[exp.method] !== undefined) {
                     spending[exp.method] += tAmt;
                 }
+                if (exp.method === 'pxpay') {
+                    let pxRes = calculatePxPayRewards(tAmt, pxpayAct12Total, pxpayNextBankTotal);
+                    pxpayAct12Total += pxRes.act12Spent;
+                    pxpayNextBankTotal += pxRes.nextBankSpent;
+                }
             });
 
             let results = [];
 
-            // 2. 分別試算如果這筆錢刷下去，會拿到多少回饋
             // icash
             const leftIcash = Math.max(0, caps.icash - spending.icash);
             const rewardIcash = Math.round(Math.min(twdAmount, leftIcash) * 0.15);
@@ -344,9 +375,8 @@
             results.push({ method: 'easy', name: '悠遊付', reward: rewardEasy });
 
             // 全支付
-            const leftPxpay = Math.max(0, caps.pxpay - spending.pxpay);
-            const rewardPxpay = Math.round(Math.min(twdAmount, leftPxpay) * 0.15);
-            results.push({ method: 'pxpay', name: '全支付', reward: rewardPxpay });
+            const pxReward = calculatePxPayRewards(twdAmount, pxpayAct12Total, pxpayNextBankTotal).reward;
+            results.push({ method: 'pxpay', name: '全支付', reward: pxReward });
 
             // 富邦
             const leftFubon = Math.max(0, caps.fubon - spending.fubon);
@@ -355,19 +385,17 @@
             const feeFubon = Math.round(twdAmount * 0.015);
             results.push({ method: 'fubon', name: '富邦好市多卡', reward: baseFubon + bonusFubon - feeFubon });
 
-            // 台新 (依目前選擇的方案)
+            // 台新
             if (activeTaishinPlan === 'taishinpay') {
                 results.push({ method: 'taishinpay', name: 'pay著刷', reward: Math.round(twdAmount * 0.038) });
             } else {
                 results.push({ method: 'taishin', name: '玩旅刷', reward: Math.round(twdAmount * 0.033) - Math.round(twdAmount * 0.015) });
             }
 
-            // 3. 排序選出冠亞軍
             results.sort((a, b) => b.reward - a.reward);
             const best = results[0];
             const second = results[1];
 
-            // 4. 更新 UI
             document.getElementById('recAskText').innerText = `購買 ${itemName} (${amount.toLocaleString()} ${currency})`;
             document.getElementById('recBestName').innerText = best.name;
             document.getElementById('recBestReward').innerText = `+${best.reward} (淨賺)`;
@@ -375,27 +403,22 @@
             document.getElementById('recSecondName').innerText = second.name;
             document.getElementById('recSecondReward').innerText = `+${second.reward} (淨賺)`;
             
-            currentRecMethod = best.method; // 記住要幫使用者自動選哪個
+            currentRecMethod = best.method; 
             document.getElementById('recResultArea').classList.remove('hidden');
         }
 
-        // 小幫手「一鍵帶入記帳」
         function applyRecommendation() {
-            // 把小幫手輸入的值塞到下方表單
             document.getElementById('expName').value = document.getElementById('recItem').value || '未命名消費';
             document.getElementById('expAmount').value = document.getElementById('recAmount').value;
             document.getElementById('expCurrency').value = document.getElementById('recCurrency').value;
             document.getElementById('expMethod').value = currentRecMethod;
             
-            // 捲動至表單區，並讓名稱欄位閃爍提示
             document.getElementById('expenseFormContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
             
-            // 清除小幫手的內容並隱藏結果
             document.getElementById('recItem').value = '';
             document.getElementById('recAmount').value = '';
             document.getElementById('recResultArea').classList.add('hidden');
         }
-        // =========================================================
 
         function editExpense(id) {
             const exp = expenses.find(e => e.id === id);
@@ -464,15 +487,20 @@
 
         function calculateAll() {
             const rate = parseFloat(document.getElementById('exchangeRate').value) || 0.024;
-            const caps = { icash: 2000, easy: 5714, pxpay: 10000, taishinpay: Infinity, fubon: 15000, taishin: Infinity };
-            const spending = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
+            const caps = { icash: 2000, easy: 5714, fubon: 15000 };
+            const spending = { icash: 0, easy: 0, fubon: 0 };
             const rewards = { icash: 0, easy: 0, pxpay: 0, taishinpay: 0, fubon: 0, taishin: 0 };
+            
+            // 全支付進度追蹤
+            let pxpayAct12Total = 0;
+            let pxpayNextBankTotal = 0;
+
             const listBody = document.getElementById('expenseList');
             listBody.innerHTML = '';
 
             expenses.forEach(exp => {
                 const twdAmount = exp.currency === 'KRW' ? Math.round(exp.amount * rate) : exp.amount;
-                spending[exp.method] += twdAmount;
+                if(spending[exp.method] !== undefined) spending[exp.method] += twdAmount;
 
                 let rewardText = '';
                 if (exp.method === 'icash') {
@@ -486,10 +514,12 @@
                     rewards.easy += reward;
                     rewardText = `+${reward} 元`;
                 } else if (exp.method === 'pxpay') {
-                    const validAmount = Math.max(0, twdAmount - Math.max(0, spending.pxpay - caps.pxpay));
-                    const reward = Math.round(validAmount * 0.15);
-                    rewards.pxpay += reward;
-                    rewardText = `+${reward} 全點`;
+                    // 套用全支付複雜邏輯
+                    let pxRes = calculatePxPayRewards(twdAmount, pxpayAct12Total, pxpayNextBankTotal);
+                    pxpayAct12Total += pxRes.act12Spent;
+                    pxpayNextBankTotal += pxRes.nextBankSpent;
+                    rewards.pxpay += pxRes.reward;
+                    rewardText = `+${pxRes.reward} 全點`;
                 } else if (exp.method === 'taishinpay') {
                     const reward = Math.round(twdAmount * 0.038);
                     rewards.taishinpay += reward;
@@ -501,13 +531,13 @@
                     const fee = Math.round(twdAmount * 0.015);
                     const net = (base + bonus) - fee;
                     rewards.fubon += net;
-                    rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
+                    rewardText = `${net >= 0 ? '+' : ''}${net} 元 (扣手續費後)`;
                 } else if (exp.method === 'taishin') {
                     const base = Math.round(twdAmount * 0.033);
                     const fee = Math.round(twdAmount * 0.015);
                     const net = base - fee;
                     rewards.taishin += net;
-                    rewardText = `${net >= 0 ? '+' : ''}${net} 元 (已扣手續費)`;
+                    rewardText = `${net >= 0 ? '+' : ''}${net} 元 (扣手續費後)`;
                 }
 
                 let methodText = '';
@@ -535,6 +565,7 @@
                 listBody.appendChild(tr);
             });
 
+            // 更新介面 UI
             const icashLeft = Math.max(0, caps.icash - spending.icash);
             document.getElementById('icashRemaining').innerText = `TWD ${icashLeft.toLocaleString()}`;
             document.getElementById('icashBar').style.width = `${(icashLeft / caps.icash) * 100}%`;
@@ -545,10 +576,13 @@
             document.getElementById('easyBar').style.width = `${(easyLeft / caps.easy) * 100}%`;
             document.getElementById('easyEarned').innerText = `已賺: ${rewards.easy} 元`;
 
-            const pxpayLeft = Math.max(0, caps.pxpay - spending.pxpay);
-            document.getElementById('pxpayRemaining').innerText = `TWD ${pxpayLeft.toLocaleString()}`;
-            document.getElementById('pxpayBar').style.width = `${(pxpayLeft / caps.pxpay) * 100}%`;
-            document.getElementById('pxpayEarned').innerText = `已賺: ${rewards.pxpay} 點`;
+            // 全支付進度條改為依照總獲得點數 1100 為基準顯示
+            const pxpayTotalLimit = 1100;
+            const pxpayEarnedTotal = rewards.pxpay;
+            const pxpayBarRatio = Math.min(100, (pxpayEarnedTotal / pxpayTotalLimit) * 100);
+            document.getElementById('pxpayRemaining').innerText = `已獲 ${pxpayEarnedTotal} 點`;
+            document.getElementById('pxpayBar').style.width = `${pxpayBarRatio}%`;
+            document.getElementById('pxpayEarned').innerText = `(活動1+2餘 ${1000-pxpayAct12Total} / 將來餘 ${100-pxpayNextBankTotal})`;
 
             const fubonLeft = Math.max(0, caps.fubon - spending.fubon);
             document.getElementById('fubonRemaining').innerText = `TWD ${fubonLeft.toLocaleString()}`;
