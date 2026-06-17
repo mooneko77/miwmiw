@@ -647,12 +647,12 @@
             const icashLeft = Math.max(0, CAPS.icash - state.icash);
             document.getElementById('icashRemaining').innerText = `TWD ${icashLeft.toLocaleString()}`;
             document.getElementById('icashBar').style.width = `${(icashLeft / CAPS.icash) * 100}%`;
-            document.getElementById('icashEarned').innerText = `已賺: ${state.rewards.icash} / 上限 300 點`;
+            document.getElementById('icashEarned').innerText = `已賺 ${state.rewards.icash} / 上限 300`;
 
             const easyLeft = Math.max(0, CAPS.easy - state.easy);
             document.getElementById('easyRemaining').innerText = `TWD ${easyLeft.toLocaleString()}`;
             document.getElementById('easyBar').style.width = `${(easyLeft / CAPS.easy) * 100}%`;
-            document.getElementById('easyEarned').innerText = `已賺: ${state.rewards.easy} / 上限 600 元`;
+            document.getElementById('easyEarned').innerText = `已賺 ${state.rewards.easy} / 上限 600`;
 
             // 全支付進階顯示
             let pxpayAct12Left = Math.max(0, CAPS.pxpayAct12Cap - state.pxpayAct12);
@@ -666,22 +666,22 @@
             // 進度條改為以「基本餘額(28,571 / 對應 1000點)」為基準計算比例
             const pxpayBarRatio = Math.min(100, (pxpayAct12Left / CAPS.pxpayAct12Cap) * 100);
             document.getElementById('pxpayBar').style.width = `${pxpayBarRatio}%`;
-            document.getElementById('pxpayEarned').innerText = `基本: ${state.pxpayAct12}/1000點 | 將來: ${state.pxpayNextBank}/100點`;
+            document.getElementById('pxpayEarned').innerText = `3.5%基礎+4%破萬 ${state.pxpayAct12}/ 1000 點 | 將來 ${state.pxpayNextBank}/ 100點`;
 
             // 富邦
             const fubonLeft = Math.max(0, CAPS.fubon - state.fubon);
             document.getElementById('fubonRemaining').innerText = `TWD ${fubonLeft.toLocaleString()}`;
             document.getElementById('fubonBar').style.width = `${(fubonLeft / CAPS.fubon) * 100}%`;
-            document.getElementById('fubonEarned').innerText = `1%賺: ${state.fubonBaseEarned} | 4%賺: ${state.fubonBonusEarned} / 上限 600`;
+            document.getElementById('fubonEarned').innerText = `1%基礎 ${state.fubonBaseEarned} | 4%加碼 ${state.fubonBonusEarned} / 上限 600`;
 
             // 台新
             document.getElementById('taishinpayRemaining').innerText = `無上限`;
             document.getElementById('taishinpayBar').style.width = `100%`;
-            document.getElementById('taishinpayEarned').innerText = `已賺: ${state.rewards.taishinpay} / 無上限`;
+            document.getElementById('taishinpayEarned').innerText = `已賺 ${state.rewards.taishinpay} / 無上限`;
 
             document.getElementById('taishinRemaining').innerText = `無上限`;
             document.getElementById('taishinBar').style.width = `100%`;
-            document.getElementById('taishinEarned').innerText = `淨賺: ${state.rewards.taishin} / 無上限`;
+            document.getElementById('taishinEarned').innerText = `已賺 ${state.rewards.taishin} / 無上限`;
         }
 
         switchTaishin(activeTaishinPlan); 
