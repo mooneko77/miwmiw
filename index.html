@@ -666,7 +666,7 @@
             // 進度條改為以「基本餘額(28,571 / 對應 1000點)」為基準計算比例
             const pxpayBarRatio = Math.min(100, (pxpayAct12Left / CAPS.pxpayAct12Cap) * 100);
             document.getElementById('pxpayBar').style.width = `${pxpayBarRatio}%`;
-            document.getElementById('pxpayEarned').innerText = `3.5%基礎+4%破萬 ${state.pxpayAct12}/ 1000 點 | 將來 ${state.pxpayNextBank}/ 100點`;
+            document.getElementById('pxpayEarned').innerText = `3.5%基礎+4%破萬 ${state.pxpayAct12}/ 1000 點 | 將來 ${state.pxpayNextBank}/ 100`;
 
             // 富邦
             const fubonLeft = Math.max(0, CAPS.fubon - state.fubon);
